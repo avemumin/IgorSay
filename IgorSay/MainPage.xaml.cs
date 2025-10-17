@@ -539,8 +539,12 @@ public partial class MainPage : ContentPage
       ["Łoś"] = "Samiec: Byk, Samica: Łania, Młode: Cielę",
       ["Sarna"] = "Samiec: Kozioł, Samica: Koza, Młode: Koźlę",
       ["Zając szarak"] = "Samiec: Zając, Samica: Zającica, Młode: Zające",
-      ["Bóbr"] = "Samiec: Bóbr, Samica: Bobrzyca, Młode: Młode bobry"
+      ["Bóbr"] = "Samiec: Bóbr, Samica: Bobrzyca, Młode: Młode bobry",
+      ["Blaze a trail"] = "przetrzyj szlaki to metafora odnosząca się do pionierskiego działania, dokonywania czegoś po raz pierwszy, np. tworzenia nowej trasy, odkrywania czegoś lub inicjowania nowego trendu",
+      ["Aberracja "] = "To odchylenie od normy lub zasady",
+      ["To co naturalne, nie może być złe"] = "Chęć podążania człowieka za swoją naturą nie może być zła"
     };
 
   }
 }
+ 

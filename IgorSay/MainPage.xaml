@@ -60,7 +60,8 @@
                     FontSize="16"
                     HorizontalOptions="Center"
                     HorizontalTextAlignment="Center"
-                    Text="Kliknij przycisk, aby wylosować hasło." />
+                    Text="Kliknij przycisk, aby wylosować hasło."
+                    TextColor="Black" />
 
             </VerticalStackLayout>
         </ScrollView>
