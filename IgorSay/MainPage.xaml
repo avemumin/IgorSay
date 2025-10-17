@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="IgorSay.MainPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <Grid RowDefinitions="2*, 1*">
+
+        <ScrollView
+            Grid.Row="0"
+            BackgroundColor="Beige">
+            <VerticalStackLayout
+                Padding="30"
+                Spacing="15"
+                VerticalOptions="Center">
+
+                <Grid
+                    x:Name="BoarContainer"
+                    HeightRequest="180"
+                    HorizontalOptions="Center"
+                    IsClippedToBounds="True"
+                    WidthRequest="300">
+
+                    <Grid
+                        x:Name="BoarMover"
+                        HorizontalOptions="Center"
+                        RowSpacing="5"
+                        TranslationX="300"
+                        VerticalOptions="Center"
+                        WidthRequest="280">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <Label
+                            x:Name="TermLabel"
+                            Grid.Row="0"
+                            FontAttributes="Bold"
+                            FontSize="22"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            Text="Witaj!"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            VerticalTextAlignment="Center" />
+                        <Image
+                            Grid.Row="1"
+                            Aspect="AspectFit"
+                            HeightRequest="120"
+                            Source="boar.png" />
+                    </Grid>
+
+                </Grid>
+
+
+                <Label
+                    x:Name="ExplanationLabel"
+                    Margin="0,25,0,0"
+                    FontSize="16"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    Text="Kliknij przycisk, aby wylosować hasło." />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <Grid
+            Grid.Row="1"
+            BackgroundColor="DarkGreen">
+
+            <Button
+                x:Name="DrawButton"
+                BackgroundColor="Green"
+                BorderColor="Black"
+                BorderWidth="5"
+                Clicked="OnDrawClicked"
+                ContentLayout="Top, 10"
+                CornerRadius="10"
+                FontFamily="Consolas"
+                FontSize="Header"
+                HorizontalOptions="Center"
+                ImageSource="shotgun.png"
+                Text="Szczelaj!"
+                TextColor="Yellow"
+                VerticalOptions="Center"
+                WidthRequest="200" />
+
+
+        </Grid>
+
+    </Grid>
+
+</ContentPage>
