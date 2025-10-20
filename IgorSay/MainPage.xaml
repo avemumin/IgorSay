@@ -48,7 +48,7 @@
                             Grid.Row="1"
                             Aspect="AspectFit"
                             HeightRequest="120"
-                            Source="boar.png" />
+                            Source="wboar.png" />
                     </Grid>
 
                 </Grid>

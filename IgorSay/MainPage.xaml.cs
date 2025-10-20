@@ -4,11 +4,11 @@ namespace IgorSay;
 
 public partial class MainPage : ContentPage
 {
-  private Dictionary<string, string> termsDictionary;
+  private Dictionary<string, string>? termsDictionary;
 
   private Random random = new Random();
   private bool isAnimating = false;
-  private CancellationTokenSource cts;
+  private CancellationTokenSource? cts;
 
   public MainPage()
   {
@@ -26,13 +26,11 @@ public partial class MainPage : ContentPage
     {
       TermLabel.Text = "Brak haseł";
       ExplanationLabel.Text = "Słownik jest pusty.";
-      System.Diagnostics.Debug.WriteLine("Słownik pusty lub null.");
       return;
     }
 
     if (!isAnimating)
     {
-      // Start animacji
       try
       {
         isAnimating = true;
@@ -41,8 +39,7 @@ public partial class MainPage : ContentPage
         TermLabel.Text = "✅ Losowanie... ✅";
         cts = new CancellationTokenSource();
 
-        System.Diagnostics.Debug.WriteLine("Rozpoczynanie animacji...");
-        DrawButton.IsEnabled = true; // Włącz przycisk, żeby można było zatrzymać
+        DrawButton.IsEnabled = true; 
         await StartAnimationLoopAsync(cts.Token);
       }
       catch (Exception ex)
@@ -55,15 +52,15 @@ public partial class MainPage : ContentPage
     }
     else
     {
-      // Stop animacji
+      
       try
       {
-        System.Diagnostics.Debug.WriteLine("Próba zatrzymania animacji...");
+      
         cts?.Cancel();
       }
       catch (Exception ex)
       {
-        System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (stop): {ex.Message}");
+        
         isAnimating = false;
         DrawButton.Text = "Losuj!";
         DrawButton.IsEnabled = true;
@@ -75,11 +72,11 @@ public partial class MainPage : ContentPage
   {
     try
     {
-      List<string> keys = new List<string>(termsDictionary.Keys);
-      uint animationSpeed = 300; // Zwiększam lekko, żeby zmniejszyć obciążenie
-      System.Diagnostics.Debug.WriteLine("StartAnimationLoopAsync: Rozpoczęto pętlę animacji.");
+      List<string> keys = new List<string>(termsDictionary!.Keys);
+      uint animationSpeed = 300; 
+     
 
-      // Inicjalne pozycjonowanie dzika
+      
       await BoarMover.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
       await Task.Delay(300, token);
       await BoarMover.TranslateTo(-300, 0, animationSpeed, Easing.SinIn);
@@ -87,7 +84,7 @@ public partial class MainPage : ContentPage
       while (true)
       {
         token.ThrowIfCancellationRequested();
-        System.Diagnostics.Debug.WriteLine("Pętla animacji: Nowa iteracja.");
+      
 
         BoarMover.TranslationX = 300;
         TermLabel.Text = keys[random.Next(keys.Count)];
@@ -100,30 +97,41 @@ public partial class MainPage : ContentPage
     }
     catch (OperationCanceledException)
     {
-      System.Diagnostics.Debug.WriteLine("Animacja przerwana przez CancellationToken.");
-      isAnimating = false;
-      DrawButton.Text = "Losuj!";
-      DrawButton.IsEnabled = true;
 
-      List<string> keys = new List<string>(termsDictionary.Keys);
+
+      DrawButton.IsEnabled = false;
+
+      List<string> keys = new List<string>(termsDictionary!.Keys);
       string randomTerm = keys[random.Next(keys.Count)];
       string explanation = termsDictionary[randomTerm];
 
-      // Ostatnia animacja dzika
+      
       BoarMover.TranslationX = 300;
       TermLabel.Text = randomTerm;
       await BoarMover.TranslateTo(0, 0, 400, Easing.BounceOut);
 
       await AnimateTyping(explanation);
+
+      
+      isAnimating = false;
+      DrawButton.Text = "Losuj!";
+      DrawButton.IsEnabled = true;
+
+
     }
     catch (Exception ex)
     {
-      System.Diagnostics.Debug.WriteLine($"Błąd w StartAnimationLoopAsync: {ex.Message}");
+    
       isAnimating = false;
       DrawButton.Text = "Losuj!";
       DrawButton.IsEnabled = true;
       TermLabel.Text = "Błąd animacji";
       ExplanationLabel.Text = "Coś poszło nie tak.";
+    }
+    finally
+    {
+      cts?.Dispose();
+      cts = null;
     }
   }
 
@@ -131,7 +139,6 @@ public partial class MainPage : ContentPage
   {
     try
     {
-      System.Diagnostics.Debug.WriteLine("Rozpoczęcie AnimateTyping.");
       var stringBuilder = new StringBuilder();
       int typingDelay = 25;
 
@@ -141,15 +148,13 @@ public partial class MainPage : ContentPage
         ExplanationLabel.Text = stringBuilder.ToString();
         await Task.Delay(typingDelay);
       }
-      System.Diagnostics.Debug.WriteLine("AnimateTyping zakończone.");
+     
     }
     catch (Exception ex)
     {
       System.Diagnostics.Debug.WriteLine($"Błąd w AnimateTyping: {ex.Message}");
     }
   }
-
-
 
   private void LoadTerms()
   {
@@ -514,4 +519,5 @@ public partial class MainPage : ContentPage
     };
 
   }
+
 }
