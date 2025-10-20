@@ -7,80 +7,145 @@ public partial class MainPage : ContentPage
   private Dictionary<string, string> termsDictionary;
 
   private Random random = new Random();
+  private bool isAnimating = false;
+  private CancellationTokenSource cts;
 
   public MainPage()
   {
     InitializeComponent();
     LoadTerms();
+    DrawButton.Text = "Losuj";
   }
 
 
   private async void OnDrawClicked(object sender, EventArgs e)
   {
-    DrawButton.IsEnabled = false;
+    System.Diagnostics.Debug.WriteLine("OnDrawClicked wywołany, isAnimating: " + isAnimating);
 
+    if (termsDictionary == null || termsDictionary.Count == 0)
+    {
+      TermLabel.Text = "Brak haseł";
+      ExplanationLabel.Text = "Słownik jest pusty.";
+      System.Diagnostics.Debug.WriteLine("Słownik pusty lub null.");
+      return;
+    }
+
+    if (!isAnimating)
+    {
+      // Start animacji
+      try
+      {
+        isAnimating = true;
+        DrawButton.Text = "Szczelaj!";
+        ExplanationLabel.Text = "";
+        TermLabel.Text = "✅ Losowanie... ✅";
+        cts = new CancellationTokenSource();
+
+        System.Diagnostics.Debug.WriteLine("Rozpoczynanie animacji...");
+        DrawButton.IsEnabled = true; // Włącz przycisk, żeby można było zatrzymać
+        await StartAnimationLoopAsync(cts.Token);
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (start): {ex.Message}");
+        isAnimating = false;
+        DrawButton.Text = "Losuj!";
+        DrawButton.IsEnabled = true;
+      }
+    }
+    else
+    {
+      // Stop animacji
+      try
+      {
+        System.Diagnostics.Debug.WriteLine("Próba zatrzymania animacji...");
+        cts?.Cancel();
+      }
+      catch (Exception ex)
+      {
+        System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (stop): {ex.Message}");
+        isAnimating = false;
+        DrawButton.Text = "Losuj!";
+        DrawButton.IsEnabled = true;
+      }
+    }
+  }
+
+  private async Task StartAnimationLoopAsync(CancellationToken token)
+  {
     try
     {
-      if (termsDictionary == null || termsDictionary.Count == 0)
-      {
-        TermLabel.Text = "Brak haseł";
-        ExplanationLabel.Text = "Słownik jest pusty.";
-        return;
-      }
-
-      ExplanationLabel.Text = "";
-      TermLabel.Text = "✅ Słowo na dziś ✅";
-
       List<string> keys = new List<string>(termsDictionary.Keys);
-      int boarCount = new Random().Next(3, 10);
-      uint animationSpeed = 250;
+      uint animationSpeed = 300; // Zwiększam lekko, żeby zmniejszyć obciążenie
+      System.Diagnostics.Debug.WriteLine("StartAnimationLoopAsync: Rozpoczęto pętlę animacji.");
 
-
+      // Inicjalne pozycjonowanie dzika
       await BoarMover.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
-      await Task.Delay(300);
-
+      await Task.Delay(300, token);
       await BoarMover.TranslateTo(-300, 0, animationSpeed, Easing.SinIn);
 
-
-      for (int i = 0; i < boarCount; i++)
+      while (true)
       {
+        token.ThrowIfCancellationRequested();
+        System.Diagnostics.Debug.WriteLine("Pętla animacji: Nowa iteracja.");
 
         BoarMover.TranslationX = 300;
         TermLabel.Text = keys[random.Next(keys.Count)];
+
         await BoarMover.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
-        await Task.Delay(50 + (i * 20));
+        await Task.Delay(50 + random.Next(20, 100), token);
         await BoarMover.TranslateTo(-300, 0, animationSpeed, Easing.SinIn);
+        await Task.Delay(100, token);
       }
+    }
+    catch (OperationCanceledException)
+    {
+      System.Diagnostics.Debug.WriteLine("Animacja przerwana przez CancellationToken.");
+      isAnimating = false;
+      DrawButton.Text = "Losuj!";
+      DrawButton.IsEnabled = true;
 
-
+      List<string> keys = new List<string>(termsDictionary.Keys);
       string randomTerm = keys[random.Next(keys.Count)];
       string explanation = termsDictionary[randomTerm];
 
+      // Ostatnia animacja dzika
       BoarMover.TranslationX = 300;
       TermLabel.Text = randomTerm;
-
       await BoarMover.TranslateTo(0, 0, 400, Easing.BounceOut);
 
       await AnimateTyping(explanation);
     }
-    finally
+    catch (Exception ex)
     {
+      System.Diagnostics.Debug.WriteLine($"Błąd w StartAnimationLoopAsync: {ex.Message}");
+      isAnimating = false;
+      DrawButton.Text = "Losuj!";
       DrawButton.IsEnabled = true;
+      TermLabel.Text = "Błąd animacji";
+      ExplanationLabel.Text = "Coś poszło nie tak.";
     }
   }
 
-
   private async Task AnimateTyping(string text)
   {
-
-    var stringBuilder = new StringBuilder();
-    int typingDelay = 25;
-
-    foreach (char c in text)
+    try
     {
-      stringBuilder.Append(c);
-      ExplanationLabel.Text = stringBuilder.ToString();
-      await Task.Delay(typingDelay);
+      System.Diagnostics.Debug.WriteLine("Rozpoczęcie AnimateTyping.");
+      var stringBuilder = new StringBuilder();
+      int typingDelay = 25;
+
+      foreach (char c in text)
+      {
+        stringBuilder.Append(c);
+        ExplanationLabel.Text = stringBuilder.ToString();
+        await Task.Delay(typingDelay);
+      }
+      System.Diagnostics.Debug.WriteLine("AnimateTyping zakończone.");
+    }
+    catch (Exception ex)
+    {
+      System.Diagnostics.Debug.WriteLine($"Błąd w AnimateTyping: {ex.Message}");
     }
   }
 
@@ -252,10 +317,8 @@ public partial class MainPage : ContentPage
       ["Siła"] = "przyczyna zmiany ruchu",
       ["Moment pędu"] = "ilość ruchu obrotowego",
       ["Kwantyzacja"] = "podział energii na dyskretne jednostki",
-      ["Superpozycja"] = "nakładanie stanów kwantowych",
       ["Fale grawitacyjne"] = "zaburzenia czasoprzestrzeni",
       ["Relatywizm"] = "zależność obserwacji od układu odniesienia",
-      ["Masa"] = "opór ciała na przyspieszenie",
       ["Prędkość"] = "zmiana położenia w czasie",
       ["Przyspieszenie"] = "zmiana prędkości",
       ["Pole elektromagnetyczne"] = "przestrzeń oddziaływania sił",
@@ -290,12 +353,10 @@ public partial class MainPage : ContentPage
       ["Selekcja naturalna"] = "mechanizm doboru korzystnych cech",
       ["Symbioza"] = "współżycie dwóch organizmów",
       ["Parazytoza"] = "życie kosztem gospodarza",
-      ["Ekosystem"] = "zespół organizmów i środowiska",
       ["Inflacja"] = "wzrost cen towarów i usług",
       ["Deflacja"] = "spadek cen",
       ["Popyt"] = "ilość dóbr, którą chcą kupić konsumenci",
       ["Podaż"] = "ilość dóbr oferowanych na rynku",
-      ["PKB"] = "wartość dóbr i usług w kraju",
       ["Recesja"] = "spadek aktywności gospodarczej",
       ["Monopol"] = "rynek z jednym producentem",
       ["Oligopol"] = "rynek z kilkoma producentami",
@@ -303,7 +364,6 @@ public partial class MainPage : ContentPage
       ["Kapitał"] = "zasoby finansowe lub rzeczowe",
       ["Dywersyfikacja"] = "rozproszenie inwestycji dla bezpieczeństwa",
       ["Rentowność"] = "stosunek zysków do kosztów",
-      ["Amortyzacja"] = "stopniowe rozliczanie kosztów zakupu",
       ["Obligacja"] = "papiery wartościowe z oprocentowaniem",
       ["Akcja"] = "udział w kapitale spółki",
       ["Bilans"] = "zestawienie aktywów i pasywów",
@@ -320,9 +380,7 @@ public partial class MainPage : ContentPage
       ["Psychopatologia"] = "nauka o zaburzeniach psychicznych",
       ["Psychoanaliza"] = "metoda badania nieświadomości",
       ["Behaviouralizm"] = "podejście badające zachowanie",
-      ["Inteligencja"] = "zdolność rozwiązywania problemów",
       ["Osobowość"] = "zespół cech psychicznych",
-      ["Samoocena"] = "ocena własnej wartości",
       ["Awersja"] = "silna niechęć",
       ["Prokrastynacja"] = "odkładanie zadań",
       ["Empatia"] = "zdolność wczuwania się w innych",
@@ -330,9 +388,7 @@ public partial class MainPage : ContentPage
       ["Traumatyzm"] = "efekt przeżycia szkodliwego psychicznie",
       ["Mechanizm obronny"] = "strategia radzenia sobie z lękiem",
       ["Konformizm"] = "podporządkowanie się grupie",
-      ["Lęk"] = "reakcja na zagrożenie",
       ["Fonetyka"] = "nauka o dźwiękach mowy",
-      ["Morfologia"] = "badanie budowy wyrazów",
       ["Semantyka"] = "znaczenie słów i zdań",
       ["Pragmatyka"] = "znaczenie w kontekście użycia",
       ["Syntax"] = "zasady budowy zdań",
@@ -346,7 +402,6 @@ public partial class MainPage : ContentPage
       ["Onomastyka"] = "nauka o nazwach własnych",
       ["Morfem"] = "najmniejsza jednostka znacząca",
       ["Fonem"] = "najmniejsza jednostka dźwiękowa",
-      ["Słowotwórstwo"] = "tworzenie nowych wyrazów",
       ["Algorytm"] = "precyzyjna instrukcja rozwiązania problemu",
       ["Baza danych"] = "zbiór uporządkowanych informacji",
       ["Sztuczna inteligencja"] = "systemy imitujące ludzką inteligencję",
@@ -357,14 +412,10 @@ public partial class MainPage : ContentPage
       ["Niegdyś"] = "kiedyś, dawniej",
       ["Wszelako"] = "jednak, mimo to",
       ["Uprzednio"] = "wcześniej, przedtem",
-      ["Zwierz"] = "zwierzę",
       ["Przeto"] = "dlatego",
       ["Potym"] = "potem, później",
       ["Tudzież"] = "i, oraz",
       ["Bies"] = "demon w wierzeniach ludowych",
-      ["Giermek"] = "młody rycerz lub jego pomocnik",
-      ["Rycerz"] = "wojownik średniowieczny",
-      ["Szlachcic"] = "członek stanu szlacheckiego",
       ["Szeliga"] = "herb szlachecki",
       ["Hufiec"] = "jednostka wojskowa lub harcerska",
       ["Żak"] = "uczeń lub student dawniej",
@@ -374,41 +425,20 @@ public partial class MainPage : ContentPage
       ["Biesiada"] = "uczta, przyjęcie",
       ["Karafka"] = "naczynie do napojów",
       ["Koryto"] = "misa do karmienia zwierząt lub stół",
-      ["Mąka"] = "zboże mielone",
       ["Pyra"] = "ziemniak (regionalizm)",
-      ["Półmisek"] = "naczynie do podawania potraw",
-      ["Kwas"] = "napój fermentowany",
-      ["Wino"] = "każdy napój alkoholowy",
-      ["Zastawa"] = "komplet naczyń stołowych",
-      ["Łyżka"] = "dawna miara lub narzędzie do jedzenia",
       ["Dziedziniec"] = "podwórze w zamku lub pałacu",
       ["Izba"] = "pokój w domu",
-      ["Komnata"] = "elegancki pokój w pałacu",
-      ["Zamek"] = "forteca, warownia",
       ["Strych"] = "poddasze",
       ["Chłodnia"] = "piwnica",
       ["Sień"] = "przedsionek w domu",
       ["Ganek"] = "weranda",
-      ["Podwórze"] = "dziedziniec",
-      ["Strumień"] = "mała rzeka",
-      ["Łąka"] = "polana, pastwisko",
       ["Gaj"] = "mały lasek",
-      ["Puszcza"] = "duży las",
-      ["Dąbrowa"] = "las dębowy",
-      ["Topola"] = "drzewo liściaste",
-      ["Brzoza"] = "drzewo liściaste",
       ["Rżysko"] = "resztki po żniwach",
-      ["Zboże"] = "rośliny uprawne",
-      ["Chwast"] = "niepożądana roślina",
       ["Jutrzenka"] = "świt",
       ["Południe"] = "godzina dwunasta / połowa dnia",
       ["Nocą"] = "w nocy",
       ["Zimorodek"] = "dawniej nazwa pewnej pory roku",
       ["Wieczerza"] = "późny posiłek wieczorny",
-      ["Poranek"] = "wczesna część dnia",
-      ["Wczora"] = "wczoraj",
-      ["Przedwczoraj"] = "poprzedni dzień",
-      ["Pojutrze"] = "dzień po jutrze",
       ["Rzewny"] = "płaczliwy, sentymentalny",
       ["Trwożliwy"] = "bojaźliwy, lękliwy",
       ["Łaskawy"] = "przychylny, uprzejmy",
@@ -420,75 +450,28 @@ public partial class MainPage : ContentPage
       ["Próżny"] = "próżny, zadufany",
       ["Miłosierny"] = "współczujący",
       ["Brona"] = "narzędzie rolnicze do spulchniania ziemi",
-      ["Wóz"] = "pojazd konny",
       ["Zaprzęg"] = "zespół zwierząt ciągnących wóz",
       ["Szkuta"] = "dawny rodzaj łodzi",
-      ["Łódź"] = "mała jednostka pływająca",
       ["Kozioł"] = "konstrukcja pomocnicza do transportu drewna",
-      ["Mostek"] = "mały most",
       ["Kładka"] = "drewniany mostek",
       ["Bryczka"] = "lekki wóz konny",
       ["Karoca"] = "luksusowy powóz",
       ["Słowia"] = "dawny płaszcz",
       ["Czamara"] = "rodzaj kurtki",
       ["Żupan"] = "długa szata szlachecka",
-      ["Płaszcz"] = "dawny strój wierzchni",
       ["Trzewik"] = "rodzaj obuwia",
-      ["Rękawice"] = "różne typy rękawic",
-      ["Pas"] = "opaska lub pasek przy ubraniu",
       ["Szarfa"] = "ozdobna taśma",
       ["Diadem"] = "korona lub opaska na głowę",
-      ["Korale"] = "biżuteria",
-      ["Kusza"] = "broń miotająca strzały",
-      ["Miecz"] = "broń biała",
-      ["Tarcza"] = "ochrona w walce",
-      ["Hełm"] = "nakrycie głowy ochronne",
-      ["Zbroja"] = "ochrona ciała",
       ["Sztandar"] = "chorągiew",
       ["Batalia"] = "bitwa",
       ["Oręż"] = "broń",
       ["Szaniec"] = "fortyfikacja ziemna",
-      ["Wojsko"] = "armia",
-      ["Księga"] = "książka dawniej",
       ["Zwoje"] = "dawne dokumenty",
       ["Papirus"] = "materiał do pisania",
-      ["Rys"] = "szkic",
       ["Miniatura"] = "malunek ozdobny w księdze",
       ["Kronika"] = "zapis wydarzeń historycznych",
-      ["Wiersz"] = "poezja",
-      ["Pieśń"] = "utwór muzyczny lub literacki",
-      ["Scena"] = "miejsce występów teatralnych",
       ["Maskarada"] = "przedstawienie, bal kostiumowy",
-      ["Kościół"] = "zgromadzenie wiernych",
-      ["Kapłan"] = "duchowny",
-      ["Modlitwa"] = "rozmowa z Bogiem",
-      ["Ołtarz"] = "miejsce ofiar i mszy",
-      ["Cierniem"] = "korona cierniowa Jezusa",
       ["Cnoty"] = "moralne zalety",
-      ["Post"] = "powstrzymywanie się od jedzenia",
-      ["Sakrament"] = "obrzęd religijny",
-      ["Klasztor"] = "miejsce życia zakonnego",
-      ["Pielgrzym"] = "osoba w podróży religijnej",
-      ["Zorza"] = "światło o wschodzie lub zachodzie słońca",
-      ["Błyskawica"] = "piorun",
-      ["Piorun"] = "wyładowanie atmosferyczne",
-      ["Mgła"] = "opad pary wodnej",
-      ["Rosa"] = "poranna woda na roślinach",
-      ["Śnieżek"] = "drobny śnieg",
-      ["Wiatr"] = "dawniej określenie siły wiatru",
-      ["Chmura"] = "obłok",
-      ["Burza"] = "gwałtowna pogoda",
-      ["Grad"] = "opad lodu",
-      ["Półka"] = "miejsce do odkładania przedmiotów",
-      ["Skrzynia"] = "pojemnik na rzeczy",
-      ["Piec"] = "urządzenie do ogrzewania",
-      ["Stół"] = "mebel do jedzenia",
-      ["Krzesło"] = "mebel do siedzenia",
-      ["Łóżko"] = "miejsce do spania",
-      ["Lampa"] = "źródło światła",
-      ["Dzban"] = "naczynie do płynów",
-      ["Kubek"] = "naczynie do picia",
-      ["Talerz"] = "naczynie do jedzenia",
       ["Przepastny"] = "ogromny, rozległy",
       ["Szelest"] = "cichy dźwięk",
       ["Łaskotać"] = "drażnić dotykiem",
@@ -500,23 +483,7 @@ public partial class MainPage : ContentPage
       ["Niezadługo"] = "wkrótce",
       ["Zwątpić"] = "utracić wiarę",
       ["zwierzyna gruba"] = "dzik, jeleń, łoś",
-      ["Zwierzyna drobna"] = "zając, bażant, kuropatwa",
-      ["Zwierzyna płowa"] = "jelenie, sarny, daniele",
-      ["Zwierzyna drapieżna"] = "lis, wilk, kuna",
-      ["Zwierzyna ptasia"] = "kaczki, gęsi, bażanty, kuropatwy",
-      ["Polowanie indywidualne"] = "wykonywane przez jednego myśliwego, samodzielnie tropiącego i pozyskującego zwierzynę.",
-      ["Polowanie zbiorowe"] = "odbywa się w grupie, zorganizowane przez koło łowieckie, często z udziałem naganki.",
-      ["Pędzenie zwierzyny"] = "technika polegająca na wypłoszeniu zwierząt z ukrycia w kierunku myśliwych.",
-      ["Podchody"] = "ciche zbliżanie się do zwierzyny w celu jej obserwacji lub pozyskania.",
-      ["Łowiectwo pasywne"] = "myśliwy oczekuje na zwierzynę w wyznaczonym miejscu (np. ambonie).",
-      ["Łowiectwo aktywne"] = "myśliwy aktywnie tropi i podchodzi zwierzynę.",
-      ["Strzelnica myśliwska"] = "miejsce do ćwiczeń strzeleckich dla myśliwych.",
-      ["Przewodnik myśliwski"] = "osoba towarzysząca myśliwemu, znająca teren i zwyczaje zwierzyny.",
       ["Łowisko"] = "obszar, na którym prowadzi się gospodarkę łowiecką.",
-      ["Obwód łowiecki"] = "jednostka organizacyjna łowiectwa, wydzielony teren przypisany kołu łowieckiemu.",
-      ["Kołek graniczny"] = "oznaczenie granicy obwodu łowieckiego.",
-      ["Droga zwierzyny"] = "regularnie uczęszczany szlak migracyjny zwierząt.",
-      ["Trop / podchód"] = "ślady pozostawione przez zwierzynę; podchód to także technika zbliżania się do niej.",
       ["Gody / rykowisko"] = "okres rozrodczy zwierzyny, np. rykowisko jeleni.",
       ["Dymorfizm płciowy"] = "różnice w wyglądzie samca i samicy danego gatunku.",
       ["Sezon lęgowy"] = "czas, w którym zwierzyna rozmnaża się i wychowuje młode.",
@@ -525,21 +492,22 @@ public partial class MainPage : ContentPage
       ["Trofeum"] = "część zwierzyny (np. poroże), zachowywana jako pamiątka lub nagroda.",
       ["Dziczyzna"] = "mięso pozyskane ze zwierzyny łownej.",
       ["Oprawianie zwierzyny"] = "przygotowanie tuszy do spożycia (patroszenie, porcjowanie).",
-      ["Wędzenie i suszenie mięsa"] = "tradycyjne metody konserwacji dziczyzny.",
       ["Skórowanie"] = "zdejmowanie skóry ze zwierzyny.",
-      ["Myśliwy"] = "osoba posiadająca uprawnienia do wykonywania polowania.",
-      ["Koło łowieckie"] = "lokalna organizacja zrzeszająca myśliwych, zarządzająca obwodem łowieckim.",
-      ["Sezon łowiecki"] = "okres, w którym dozwolone jest polowanie na określone gatunki.",
-      ["Pozwolenie łowieckie"] = "dokument uprawniający do wykonywania polowania.",
-      ["Regulacja populacji"] = "działania mające na celu utrzymanie równowagi liczebnej zwierzyny.",
-      ["Ochrona zwierzyny"] = "działania mające na celu zachowanie zdrowych populacji i środowiska.",
       ["Dzik"] = "Samiec: Odyniec, Samica: Locha, Młode: Warchlak",
-      ["Jeleń szlachetny"] = "Samiec: Byk, Samica: Łania, Młode: Cielę",
-      ["Jeleń sika"] = "Samiec: Byk, Samica: Łania, Młode: Cielę",
+      ["Jeleń"] = "Samiec: Byk, Samica: Łania, Młode: Cielę",
       ["Łoś"] = "Samiec: Byk, Samica: Łania, Młode: Cielę",
       ["Sarna"] = "Samiec: Kozioł, Samica: Koza, Młode: Koźlę",
-      ["Zając szarak"] = "Samiec: Zając, Samica: Zającica, Młode: Zające",
-      ["Bóbr"] = "Samiec: Bóbr, Samica: Bobrzyca, Młode: Młode bobry",
+      ["Chędożenie"] = "pierwotnie: czyszczenie, sprzątanie; później: zaspokojenie seksualne. (Słowo o bardzo zmiennym i specyficznym znaczeniu)",
+      ["Żalnik"] = "cmentarz, mogilnik",
+      ["Perstryngować"] = "przymawiać komu, docinać, przyganiać",
+      ["Pacwa"] = "licho, kaduk, zły duch; grzech, pokusa ",
+      ["Obrochmanić"] = "ugłaskać, ułagodzić, oswoić",
+      ["Obarchnieć (obarknieć)"] = "otumanieć, ogłupieć",
+      ["Dardański osioł"] = "określenie człowieka wyjątkowo głupiego, pozbawionego inteligencji",
+      ["Wartać się"] = "obracać się, kręcić się; błąkać się",
+      ["Duby smalone"] = "bzdury, głupstwa, brednie",
+      ["Safanduła"] = "niezdara, gamoń, fajtłapa, człowiek nierozgarnięty",
+      ["Huncwot"] = "łobuz, urwis, nicpoń",
       ["Blaze a trail"] = "przetrzyj szlaki to metafora odnosząca się do pionierskiego działania, dokonywania czegoś po raz pierwszy, np. tworzenia nowej trasy, odkrywania czegoś lub inicjowania nowego trendu",
       ["Aberracja "] = "To odchylenie od normy lub zasady",
       ["To co naturalne, nie może być złe"] = "Chęć podążania człowieka za swoją naturą nie może być zła"
@@ -547,4 +515,3 @@ public partial class MainPage : ContentPage
 
   }
 }
- 
