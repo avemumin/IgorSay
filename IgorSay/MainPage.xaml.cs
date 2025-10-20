@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Plugin.Maui.Audio;
 
 namespace IgorSay;
 
@@ -9,18 +10,28 @@ public partial class MainPage : ContentPage
   private Random random = new Random();
   private bool isAnimating = false;
   private CancellationTokenSource? cts;
-
-  public MainPage()
+  private readonly IAudioManager _audioManager;
+  public MainPage(IAudioManager audioManager)
   {
     InitializeComponent();
     LoadTerms();
     DrawButton.Text = "Losuj";
+    _audioManager = audioManager;
   }
 
 
   private async void OnDrawClicked(object sender, EventArgs e)
   {
-    System.Diagnostics.Debug.WriteLine("OnDrawClicked wywołany, isAnimating: " + isAnimating);
+    try
+    {
+      var audioPlayer = _audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("boar.wav"));
+      audioPlayer.Play();
+    }
+    catch (Exception ex)
+    {
+      System.Diagnostics.Debug.WriteLine($"Błąd odtwarzania dźwięku: {ex.Message}");
+      await DisplayAlert("Błąd", $"Nie udało się odtworzyć dźwięku: {ex.Message}", "OK");
+    }
 
     if (termsDictionary == null || termsDictionary.Count == 0)
     {
@@ -39,7 +50,7 @@ public partial class MainPage : ContentPage
         TermLabel.Text = "✅ Losowanie... ✅";
         cts = new CancellationTokenSource();
 
-        DrawButton.IsEnabled = true; 
+        DrawButton.IsEnabled = true;
         await StartAnimationLoopAsync(cts.Token);
       }
       catch (Exception ex)
@@ -52,15 +63,15 @@ public partial class MainPage : ContentPage
     }
     else
     {
-      
+
       try
       {
-      
+
         cts?.Cancel();
       }
       catch (Exception ex)
       {
-        
+
         isAnimating = false;
         DrawButton.Text = "Losuj!";
         DrawButton.IsEnabled = true;
@@ -73,10 +84,10 @@ public partial class MainPage : ContentPage
     try
     {
       List<string> keys = new List<string>(termsDictionary!.Keys);
-      uint animationSpeed = 300; 
-     
+      uint animationSpeed = 300;
 
-      
+
+
       await BoarMover.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
       await Task.Delay(300, token);
       await BoarMover.TranslateTo(-300, 0, animationSpeed, Easing.SinIn);
@@ -84,7 +95,7 @@ public partial class MainPage : ContentPage
       while (true)
       {
         token.ThrowIfCancellationRequested();
-      
+
 
         BoarMover.TranslationX = 300;
         TermLabel.Text = keys[random.Next(keys.Count)];
@@ -105,14 +116,14 @@ public partial class MainPage : ContentPage
       string randomTerm = keys[random.Next(keys.Count)];
       string explanation = termsDictionary[randomTerm];
 
-      
+
       BoarMover.TranslationX = 300;
       TermLabel.Text = randomTerm;
       await BoarMover.TranslateTo(0, 0, 400, Easing.BounceOut);
 
       await AnimateTyping(explanation);
 
-      
+
       isAnimating = false;
       DrawButton.Text = "Losuj!";
       DrawButton.IsEnabled = true;
@@ -121,7 +132,7 @@ public partial class MainPage : ContentPage
     }
     catch (Exception ex)
     {
-    
+
       isAnimating = false;
       DrawButton.Text = "Losuj!";
       DrawButton.IsEnabled = true;
@@ -148,7 +159,7 @@ public partial class MainPage : ContentPage
         ExplanationLabel.Text = stringBuilder.ToString();
         await Task.Delay(typingDelay);
       }
-     
+
     }
     catch (Exception ex)
     {

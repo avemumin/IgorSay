@@ -76,6 +76,7 @@
                 BorderColor="Black"
                 BorderWidth="5"
                 Clicked="OnDrawClicked"
+             
                 ContentLayout="Top, 10"
                 CornerRadius="10"
                 FontFamily="Consolas"
