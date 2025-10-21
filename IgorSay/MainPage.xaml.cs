@@ -6,11 +6,13 @@ namespace IgorSay;
 public partial class MainPage : ContentPage
 {
   private Dictionary<string, string>? termsDictionary;
-
+  private IAudioPlayer? _currentAudioPlayer;
   private Random random = new Random();
   private bool isAnimating = false;
   private CancellationTokenSource? cts;
   private readonly IAudioManager _audioManager;
+
+
   public MainPage(IAudioManager audioManager)
   {
     InitializeComponent();
@@ -19,65 +21,139 @@ public partial class MainPage : ContentPage
     _audioManager = audioManager;
   }
 
-
   private async void OnDrawClicked(object sender, EventArgs e)
   {
     try
     {
-      var audioPlayer = _audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync("boar.wav"));
-      audioPlayer.Play();
+      // Odtwarzanie dźwięku w osobnym tasku
+      string soundOfKnur = isAnimating ? "shootgun.wav" : "boar.wav";
+      _ = Task.Run(async () =>
+      {
+        try
+        {
+          if (_currentAudioPlayer != null && _currentAudioPlayer.IsPlaying)
+          {
+            _currentAudioPlayer.Stop();
+            _currentAudioPlayer.Dispose();
+          }
+          _currentAudioPlayer = _audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync(soundOfKnur));
+          _currentAudioPlayer.Play();
+        }
+        catch (Exception ex)
+        {
+          System.Diagnostics.Debug.WriteLine($"Błąd odtwarzania dźwięku: {ex.Message}");
+          await MainThread.InvokeOnMainThreadAsync(async () =>
+              await DisplayAlert("Błąd", $"Nie udało się odtworzyć dźwięku: {ex.Message}", "OK"));
+        }
+      });
+
+      if (termsDictionary == null || termsDictionary.Count == 0)
+      {
+        TermLabel.Text = "Brak haseł";
+        ExplanationLabel.Text = "Słownik jest pusty.";
+        return;
+      }
+
+      if (!isAnimating)
+      {
+        try
+        {
+          isAnimating = true;
+          DrawButton.Text = "Szczelaj!";
+          ExplanationLabel.Text = "";
+          TermLabel.Text = "🔥💥 Losowanie...💥🔥";
+          cts = new CancellationTokenSource();
+          DrawButton.IsEnabled = true;
+          await StartAnimationLoopAsync(cts.Token);
+        }
+        catch (Exception ex)
+        {
+          System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (start): {ex.Message}");
+          isAnimating = false;
+          DrawButton.Text = "Losuj!";
+          DrawButton.IsEnabled = true;
+        }
+      }
+      else
+      {
+        try
+        {
+          cts?.Cancel();
+        }
+        catch (Exception ex)
+        {
+          System.Diagnostics.Debug.WriteLine($"Błąd w anulowaniu: {ex.Message}");
+          isAnimating = false;
+          DrawButton.Text = "Losuj!";
+          DrawButton.IsEnabled = true;
+        }
+      }
     }
     catch (Exception ex)
     {
-      System.Diagnostics.Debug.WriteLine($"Błąd odtwarzania dźwięku: {ex.Message}");
-      await DisplayAlert("Błąd", $"Nie udało się odtworzyć dźwięku: {ex.Message}", "OK");
-    }
-
-    if (termsDictionary == null || termsDictionary.Count == 0)
-    {
-      TermLabel.Text = "Brak haseł";
-      ExplanationLabel.Text = "Słownik jest pusty.";
-      return;
-    }
-
-    if (!isAnimating)
-    {
-      try
-      {
-        isAnimating = true;
-        DrawButton.Text = "Szczelaj!";
-        ExplanationLabel.Text = "";
-        TermLabel.Text = "✅ Losowanie... ✅";
-        cts = new CancellationTokenSource();
-
-        DrawButton.IsEnabled = true;
-        await StartAnimationLoopAsync(cts.Token);
-      }
-      catch (Exception ex)
-      {
-        System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (start): {ex.Message}");
-        isAnimating = false;
-        DrawButton.Text = "Losuj!";
-        DrawButton.IsEnabled = true;
-      }
-    }
-    else
-    {
-
-      try
-      {
-
-        cts?.Cancel();
-      }
-      catch (Exception ex)
-      {
-
-        isAnimating = false;
-        DrawButton.Text = "Losuj!";
-        DrawButton.IsEnabled = true;
-      }
+      System.Diagnostics.Debug.WriteLine($"Błąd ogólny w OnDrawClicked: {ex.Message}");
     }
   }
+  //private async void OnDrawClicked(object sender, EventArgs e)
+  //{
+  //  try
+  //  {
+  //    string soundOfKnur = isAnimating == true ? "shootgun.wav" : "boar.wav";
+  //    var audioPlayer = _audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync(soundOfKnur));
+  //    audioPlayer.Play();
+
+  //  }
+  //  catch (Exception ex)
+  //  {
+  //    System.Diagnostics.Debug.WriteLine($"Błąd odtwarzania dźwięku: {ex.Message}");
+  //    await DisplayAlert("Błąd", $"Nie udało się odtworzyć dźwięku: {ex.Message}", "OK");
+  //  }
+
+  //  if (termsDictionary == null || termsDictionary.Count == 0)
+  //  {
+  //    TermLabel.Text = "Brak haseł";
+  //    ExplanationLabel.Text = "Słownik jest pusty.";
+  //    return;
+  //  }
+
+  //  if (!isAnimating)
+  //  {
+  //    try
+  //    {
+  //      isAnimating = true;
+  //      DrawButton.Text = "Szczelaj!";
+  //      ExplanationLabel.Text = "";
+  //      TermLabel.Text = "✅ Losowanie... ✅";
+  //      cts = new CancellationTokenSource();
+
+  //      DrawButton.IsEnabled = true;
+  //      await StartAnimationLoopAsync(cts.Token);
+  //    }
+  //    catch (Exception ex)
+  //    {
+  //      System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (start): {ex.Message}");
+  //      isAnimating = false;
+  //      DrawButton.Text = "Losuj!";
+  //      DrawButton.IsEnabled = true;
+  //    }
+  //  }
+  //  else
+  //  {
+
+  //    try
+  //    {
+
+  //      cts?.Cancel();
+  //    }
+  //    catch (Exception ex)
+  //    {
+
+  //      isAnimating = false;
+  //      DrawButton.Text = "Losuj!";
+  //      DrawButton.IsEnabled = true;
+  //    }
+  //  }
+  //}
 
   private async Task StartAnimationLoopAsync(CancellationToken token)
   {
