@@ -41,7 +41,6 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-          System.Diagnostics.Debug.WriteLine($"Błąd odtwarzania dźwięku: {ex.Message}");
           await MainThread.InvokeOnMainThreadAsync(async () =>
               await DisplayAlert("Błąd", $"Nie udało się odtworzyć dźwięku: {ex.Message}", "OK"));
         }
@@ -68,7 +67,6 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-          System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (start): {ex.Message}");
           isAnimating = false;
           DrawButton.Text = "Losuj!";
           DrawButton.IsEnabled = true;
@@ -82,7 +80,6 @@ public partial class MainPage : ContentPage
         }
         catch (Exception ex)
         {
-          System.Diagnostics.Debug.WriteLine($"Błąd w anulowaniu: {ex.Message}");
           isAnimating = false;
           DrawButton.Text = "Losuj!";
           DrawButton.IsEnabled = true;
@@ -94,66 +91,7 @@ public partial class MainPage : ContentPage
       System.Diagnostics.Debug.WriteLine($"Błąd ogólny w OnDrawClicked: {ex.Message}");
     }
   }
-  //private async void OnDrawClicked(object sender, EventArgs e)
-  //{
-  //  try
-  //  {
-  //    string soundOfKnur = isAnimating == true ? "shootgun.wav" : "boar.wav";
-  //    var audioPlayer = _audioManager.CreatePlayer(await FileSystem.OpenAppPackageFileAsync(soundOfKnur));
-  //    audioPlayer.Play();
 
-  //  }
-  //  catch (Exception ex)
-  //  {
-  //    System.Diagnostics.Debug.WriteLine($"Błąd odtwarzania dźwięku: {ex.Message}");
-  //    await DisplayAlert("Błąd", $"Nie udało się odtworzyć dźwięku: {ex.Message}", "OK");
-  //  }
-
-  //  if (termsDictionary == null || termsDictionary.Count == 0)
-  //  {
-  //    TermLabel.Text = "Brak haseł";
-  //    ExplanationLabel.Text = "Słownik jest pusty.";
-  //    return;
-  //  }
-
-  //  if (!isAnimating)
-  //  {
-  //    try
-  //    {
-  //      isAnimating = true;
-  //      DrawButton.Text = "Szczelaj!";
-  //      ExplanationLabel.Text = "";
-  //      TermLabel.Text = "✅ Losowanie... ✅";
-  //      cts = new CancellationTokenSource();
-
-  //      DrawButton.IsEnabled = true;
-  //      await StartAnimationLoopAsync(cts.Token);
-  //    }
-  //    catch (Exception ex)
-  //    {
-  //      System.Diagnostics.Debug.WriteLine($"Błąd w OnDrawClicked (start): {ex.Message}");
-  //      isAnimating = false;
-  //      DrawButton.Text = "Losuj!";
-  //      DrawButton.IsEnabled = true;
-  //    }
-  //  }
-  //  else
-  //  {
-
-  //    try
-  //    {
-
-  //      cts?.Cancel();
-  //    }
-  //    catch (Exception ex)
-  //    {
-
-  //      isAnimating = false;
-  //      DrawButton.Text = "Losuj!";
-  //      DrawButton.IsEnabled = true;
-  //    }
-  //  }
-  //}
 
   private async Task StartAnimationLoopAsync(CancellationToken token)
   {
@@ -161,8 +99,6 @@ public partial class MainPage : ContentPage
     {
       List<string> keys = new List<string>(termsDictionary!.Keys);
       uint animationSpeed = 300;
-
-
 
       await BoarMover.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
       await Task.Delay(300, token);
@@ -172,10 +108,9 @@ public partial class MainPage : ContentPage
       {
         token.ThrowIfCancellationRequested();
 
-
         BoarMover.TranslationX = 300;
-        TermLabel.Text = keys[random.Next(keys.Count)];
-
+        TermLabel.Text = isAnimating ? string.Empty : keys[random.Next(keys.Count)];
+        
         await BoarMover.TranslateTo(0, 0, animationSpeed, Easing.SinOut);
         await Task.Delay(50 + random.Next(20, 100), token);
         await BoarMover.TranslateTo(-300, 0, animationSpeed, Easing.SinIn);
@@ -184,7 +119,6 @@ public partial class MainPage : ContentPage
     }
     catch (OperationCanceledException)
     {
-
 
       DrawButton.IsEnabled = false;
 
@@ -214,6 +148,7 @@ public partial class MainPage : ContentPage
       DrawButton.IsEnabled = true;
       TermLabel.Text = "Błąd animacji";
       ExplanationLabel.Text = "Coś poszło nie tak.";
+      System.Diagnostics.Debug.WriteLine($"Błąd w AnimateTyping: {ex.Message}");
     }
     finally
     {
@@ -247,70 +182,37 @@ public partial class MainPage : ContentPage
   {
     termsDictionary = new Dictionary<string, string>
     {
-      ["Aksjologia psychologiczna"] = "badanie wartości w zachowaniu i myśleniu człowieka",
       ["Afektywność"] = "zdolność do doświadczania emocji",
-      ["Amnezja dysocjacyjna"] = "utrata pamięci związana z traumą lub stresem: nie organicznym uszkodzeniem mózgu",
       ["Anhedonia"] = "brak zdolności do odczuwania przyjemności",
       ["Apatia psychiczna"] = "obniżona motywacja i inicjatywa w działaniu",
       ["Autyzm spektrum"] = "zaburzenia rozwoju wpływające na komunikację: interakcje społeczne i zainteresowania",
       ["Awersja warunkowa"] = "wyuczona reakcja unikania w odpowiedzi na bodziec negatywny",
       ["Behavioralizm (behawioryzm)"] = "nurt psychologiczny skupiający się na obserwowalnych zachowaniach: a nie stanach wewnętrznych",
       ["Cognitywizm"] = "podejście w psychologii koncentrujące się na procesach poznawczych: takich jak myślenie: pamięć: uwaga",
-      ["Coping"] = "strategie radzenia sobie ze stresem",
-      ["Depersonalizacja"] = "poczucie bycia odłączonym od własnego ciała lub myśli",
       ["Dysocjacja"] = "oddzielenie pewnych procesów psychicznych od świadomości",
       ["Dysonans poznawczy"] = "napięcie psychiczne wynikające z posiadania sprzecznych przekonań lub zachowań",
-      ["Ego"] = "w teorii Freuda część osobowości odpowiedzialna za racjonalne działanie",
       ["Egzaltacja"] = "stan nadmiernego pobudzenia emocjonalnego lub intelektualnego",
-      ["Emocje afektywne pierwotne"] = "podstawowe emocje: np. strach: radość: gniew",
-      ["Empatia poznawcza"] = "zdolność rozumienia uczuć innych osób",
-      ["Endofenotyp"] = "wewnętrzny marker biologiczny związany z chorobą psychiczną",
-      ["Euforia maniakalna"] = "patologiczny stan podwyższonego nastroju w zaburzeniu afektywnym",
       ["Fenomenologia"] = "badanie doświadczeń subiektywnych jednostki",
       ["Flow"] = "stan całkowitego wczucia się w wykonywaną czynność: związany z optymalną motywacją",
-      ["Habituacja"] = "zmniejszenie reakcji na powtarzający się bodziec",
       ["Heurystyki poznawcze"] = "uproszczone strategie myślenia i podejmowania decyzji",
-      ["Hipochondria"] = "nadmierne zamartwianie się o własne zdrowie",
-      ["Histeria"] = "zaburzenie objawiające się silnymi reakcjami emocjonalnymi i somatycznymi bez organicznej przyczyny",
-      ["Id"] = "w teorii Freuda nieświadoma część osobowości dążąca do natychmiastowej gratyfikacji",
-      ["Imprinting"] = "proces szybkiego uczenia się specyficznych wzorców zachowania w krytycznym okresie rozwojowym",
       ["Inteligencja emocjonalna"] = "zdolność rozpoznawania: rozumienia i regulowania emocji własnych i innych",
-      ["Interakcjonizm symboliczny"] = "teoria socjologiczno-psychologiczna podkreślająca znaczenie symboli i komunikacji w zachowaniu",
       ["Katastrofizacja"] = "myślenie: które przewiduje najgorszy możliwy scenariusz",
       ["Kognitywna dezintegracja"] = "zaburzenie spójności myślenia i percepcji w schizofrenii",
       ["Labilność emocjonalna"] = "częste i szybkie zmiany nastroju",
-      ["Lęk uogólniony"] = "przewlekły stan niepokoju bez konkretnej przyczyny",
-      ["Mechanizmy obronne"] = "strategie psychiczne chroniące przed lękiem (np. wyparcie: projekcja)",
       ["Neuroplastyczność"] = "zdolność mózgu do reorganizacji i tworzenia nowych połączeń nerwowych",
       ["Neurotyzm"] = "cecha osobowości związana z podatnością na stres i negatywne emocje",
       ["Obsessje"] = "natrętne myśli: które osoba próbuje ignorować lub tłumić",
-      ["Paradoks kontroli"] = "zjawisko: w którym nadmierna kontrola prowadzi do utraty kontroli",
       ["Paraliż decyzyjny"] = "niemożność podjęcia decyzji wskutek nadmiaru opcji",
-      ["Percepcja subliminalna"] = "przetwarzanie bodźców: które nie docierają do świadomej percepcji",
-      ["Perswazja afektywna"] = "wpływ na emocje odbiorcy w celu zmiany jego przekonań lub zachowań",
-      ["Personalizacja"] = "przypisywanie sobie odpowiedzialności za zdarzenia niezależne od jednostki",
       ["Placebo"] = "substancja lub interwencja wywołująca efekt dzięki oczekiwaniom pacjenta",
-      ["Prawo Yerkesa-Dodsona"] = "zależność między poziomem pobudzenia a wydajnością zadania",
       ["Prokrastynacja"] = "odwlekanie wykonania zadania pomimo świadomości negatywnych konsekwencji",
-      ["Projektowanie poznawcze"] = "tworzenie schematów myślowych w odpowiedzi na doświadczenie",
-      ["Psychofizjologia"] = "badanie zależności między procesami psychicznymi a funkcjami organizmu",
       ["Psychopatia"] = "zaburzenie osobowości charakteryzujące się brakiem empatii: impulsywnością i manipulacją",
-      ["Resiliencia (odporność psychiczna)"] = "zdolność adaptacji do trudnych sytuacji",
       ["Stroop efekt"] = "zjawisko opóźnienia w nazwaniu koloru napisanego słowa: gdy słowo oznacza inny kolor",
-      ["Aksjologia"] = "nauka o wartościach; bada: co jest dobre: złe: piękne czy moralnie słuszne",
-      ["Epistemologia"] = "teoria poznania; zajmuje się tym: czym jest wiedza i jak ją uzyskujemy",
       ["Metafizyka"] = "dział filozofii zajmujący się tym: co wykracza poza doświadczenie zmysłowe: np. istota bytu: czas: przestrzeń",
       ["Ontologia"] = "nauka o bycie; bada: co istnieje i w jaki sposób istnieje",
-      ["Deontologia"] = "etyka obowiązku; określa moralne zasady działania niezależnie od skutków",
-      ["Utilitaryzm"] = "teoria etyczna: według której słuszność czynu mierzy się jego skutkiem: zwykle w kategoriach maksymalizacji szczęścia lub dobra",
-      ["Dialektyka"] = "metoda dochodzenia do prawdy poprzez dyskusję i zestawienie przeciwstawnych tez",
       ["Nihilizm"] = "pogląd odrzucający obiektywne wartości: sens życia i moralność",
-      ["Fenomenologia"] = "kierunek filozoficzny badający strukturę doświadczenia i świadomości: skupiając się na tym: jak rzeczy jawią się człowiekowi",
       ["Egzystencjalizm"] = "nurt filozoficzny koncentrujący się na jednostce: jej wolności i odpowiedzialności w świecie bez wrodzonego sensu",
       ["Stoicyzm"] = "filozofia ucząca panowania nad emocjami i życia zgodnie z rozumem oraz naturą",
       ["Pragmatyzm"] = "kierunek filozoficzny: według którego wartość idei mierzy się ich praktycznym skutkiem",
-      ["Determinizm"] = "pogląd: że wszystkie zdarzenia są z góry określone przez przyczyny wcześniejsze: w tym nasze działania",
-      ["Solipsyzm"] = "pogląd: że tylko własna świadomość jest pewna: a istnienie innych ludzi i świata zewnętrznego może być wątpliwe",
       ["Transcendencja"] = "to: co wykracza poza doświadczenie i granice zmysłów; często odnoszone do Boga lub absolutu",
       ["Abstrakcja"] = "ukrywanie szczegółów implementacji i eksponowanie tylko istotnych cech obiektu",
       ["Algorytm"] = "skończony zestaw kroków prowadzących do rozwiązania problemu",
@@ -324,12 +226,11 @@ public partial class MainPage : ContentPage
       ["Commit"] = "zapisanie zmian w systemie kontroli wersji: np. Git",
       ["Concurrency (współbieżność)"] = "możliwość wykonywania wielu zadań w tym samym czasie",
       ["Containerization"] = "pakowanie aplikacji i jej zależności w izolowane środowisko (np. Docker)",
-      ["CRTP (Curiously Recurring Template Pattern)"] = "wzorzec projektowy w C++ używający dziedziczenia szablonów",
       ["Dekorator (Decorator)"] = "wzorzec lub funkcja zmieniająca zachowanie innej funkcji lub klasy",
       ["Dependency Injection"] = "wzorzec: w którym obiekty otrzymują swoje zależności z zewnątrz",
       ["DSL (Domain Specific Language)"] = "język programowania dedykowany określonej dziedzinie",
       ["Encapsulation (enkapsulacja)"] = "ukrywanie danych wewnątrz klasy i udostępnianie ich tylko poprzez metody",
-      ["Event Loop"] = "mechanizm w JavaScript obsługujący asynchroniczne zdarzenia",
+      ["Event Loop"] = "mechanizm obsługujący asynchroniczne zdarzenia",
       ["Garbage Collector"] = "mechanizm automatycznego zwalniania pamięci w niektórych językach programowania",
       ["Generics (szablony)"] = "mechanizm umożliwiający pisanie funkcji i klas działających z różnymi typami danych",
       ["GraphQL"] = "język zapytań do API pozwalający precyzyjnie określić: jakie dane chcemy otrzymać",
@@ -357,32 +258,14 @@ public partial class MainPage : ContentPage
       ["Singleton"] = "wzorzec: który pozwala na istnienie tylko jednej instancji klasy",
       ["Stack (stos)"] = "struktura danych LIFO (Last In: First Out)",
       ["Streaming"] = "przetwarzanie danych w strumieniu zamiast w całości",
-      ["Template Metaprogramming"] = "technika w C++ pozwalająca wykonywać obliczenia w czasie kompilacji",
       ["Epistemologia"] = "teoria wiedzy",
-      ["Ontologia"] = "nauka o bycie",
       ["Aksjologia"] = "teoria wartości",
-      ["Fenomenologia"] = "badanie świadomości i doświadczenia",
-      ["Dialektyka"] = "metoda dociekań przez przeciwieństwa",
       ["Determinizm"] = "pogląd, że wszystko jest z góry określone",
-      ["Egzystencjalizm"] = "filozofia wolności i sensu życia",
-      ["Nihilizm"] = "przekonanie o braku obiektywnego sensu",
-      ["Pragmatyzm"] = "filozofia praktycznego zastosowania idei",
-      ["Stoicyzm"] = "szkoła ucząca panowania nad emocjami",
       ["Hedonizm"] = "cel życia w przyjemności",
-      ["Solipsyzm"] = "przekonanie o istnieniu tylko własnej świadomości",
-      ["Monizm"] = "rzeczywistość ma jedną podstawową zasadę",
-      ["Pluralizm"] = "rzeczywistość składa się z wielu zasad",
-      ["Sceptycyzm"] = "wątpliwość wobec możliwości poznania prawdy",
-      ["Dogmatyzm"] = "ścisłe trzymanie się założeń bez dowodu",
-      ["Dualizm"] = "podział rzeczywistości na dwie odrębne substancje",
-      ["Teleologia"] = "wyjaśnianie zjawisk przez ich cel",
-      ["Metafizyka"] = "badanie podstaw bytu i rzeczywistości",
-      ["Subiektywizm"] = "przekonanie, że wiedza zależy od jednostki",
       ["Algebra"] = "struktury i równania",
       ["Analiza matematyczna"] = "badanie funkcji i granic",
       ["Rachunek różniczkowy"] = "analiza zmian funkcji",
       ["Rachunek całkowy"] = "obliczanie pól, objętości",
-      ["Teoria liczb"] = "badanie własności liczb całkowitych",
       ["Kombinatoryka"] = "liczenie sposobów łączenia elementów",
       ["Logarytm"] = "funkcja odwrotna do potęgowania",
       ["Macierz"] = "tablica liczb",
@@ -394,215 +277,56 @@ public partial class MainPage : ContentPage
       ["Twierdzenie"] = "stwierdzenie udowodnione logicznie",
       ["Permutacja"] = "różne ustawienia elementów",
       ["Kombinacja"] = "wybór elementów bez kolejności",
-      ["Symetria"] = "własność zachowania przy przekształceniach",
-      ["Macierz diagonalna"] = "macierz z wartościami tylko na głównej przekątnej",
       ["Determinant"] = "liczba opisująca macierz",
-      ["Równoległobok"] = "czworokąt o równoległych bokach",
-      ["Krzywa"] = "linia w przestrzeni",
-      ["Prosta"] = "najkrótsza linia między punktami",
-      ["Kąt"] = "figura utworzona przez dwie półproste",
-      ["Funkcja"] = "przyporządkowanie każdemu elementowi jednego",
-      ["Granica"] = "wartość funkcji przy dążeniu argumentu do określonego punktu",
       ["Entropia"] = "miara nieuporządkowania",
-      ["Energia kinetyczna"] = "energia ruchu",
-      ["Energia potencjalna"] = "energia położenia",
-      ["Siła"] = "przyczyna zmiany ruchu",
-      ["Moment pędu"] = "ilość ruchu obrotowego",
       ["Kwantyzacja"] = "podział energii na dyskretne jednostki",
-      ["Fale grawitacyjne"] = "zaburzenia czasoprzestrzeni",
       ["Relatywizm"] = "zależność obserwacji od układu odniesienia",
-      ["Prędkość"] = "zmiana położenia w czasie",
-      ["Przyspieszenie"] = "zmiana prędkości",
-      ["Pole elektromagnetyczne"] = "przestrzeń oddziaływania sił",
       ["Rezonans"] = "wzmocnienie drgań",
-      ["Impuls"] = "iloczyn siły i czasu jej działania",
-      ["Ciśnienie"] = "siła działająca na jednostkę powierzchni",
-      ["Gęstość"] = "masa na jednostkę objętości",
-      ["Ciepło"] = "energia przekazywana między ciałami",
-      ["Temperatura"] = "miara średniej energii cząsteczek",
-      ["Przewodnictwo"] = "zdolność przewodzenia prądu lub ciepła",
       ["Dyfuzja"] = "samoistne rozprzestrzenianie się cząsteczek",
-      ["Siła Lorentza"] = "siła działająca na ładunek w polu elektromagnetycznym",
-      ["Foton"] = "cząstka światła",
-      ["Proton"] = "cząstka dodatnio naładowana w jądrze",
-      ["Neutron"] = "cząstka obojętna w jądrze",
-      ["Komórka"] = "podstawowa jednostka życia",
-      ["DNA"] = "nośnik informacji genetycznej",
-      ["RNA"] = "uczestnik syntezy białek",
-      ["Gen"] = "odcinek DNA kodujący białko",
-      ["Chromosom"] = "struktura DNA w jądrze",
-      ["Mitochondrium"] = "elektrownia komórki",
-      ["Chloroplast"] = "miejsce fotosyntezy",
-      ["Homeostaza"] = "utrzymanie stabilnych warunków",
-      ["Apoptoza"] = "programowana śmierć komórki",
-      ["Fotosynteza"] = "proces wytwarzania energii ze światła",
-      ["Oddychanie komórkowe"] = "proces wytwarzania energii z glukozy",
-      ["Enzym"] = "białko przyspieszające reakcje",
-      ["Antygen"] = "substancja wywołująca reakcję immunologiczną",
-      ["Antyciało"] = "białko neutralizujące antygen",
-      ["Mutacja"] = "zmiana w materiale genetycznym",
-      ["Ewolucja"] = "proces zmian gatunków",
-      ["Selekcja naturalna"] = "mechanizm doboru korzystnych cech",
-      ["Symbioza"] = "współżycie dwóch organizmów",
-      ["Parazytoza"] = "życie kosztem gospodarza",
-      ["Inflacja"] = "wzrost cen towarów i usług",
-      ["Deflacja"] = "spadek cen",
-      ["Popyt"] = "ilość dóbr, którą chcą kupić konsumenci",
-      ["Podaż"] = "ilość dóbr oferowanych na rynku",
-      ["Recesja"] = "spadek aktywności gospodarczej",
-      ["Monopol"] = "rynek z jednym producentem",
-      ["Oligopol"] = "rynek z kilkoma producentami",
-      ["Kredyt"] = "pożyczka na określony czas",
-      ["Kapitał"] = "zasoby finansowe lub rzeczowe",
       ["Dywersyfikacja"] = "rozproszenie inwestycji dla bezpieczeństwa",
-      ["Rentowność"] = "stosunek zysków do kosztów",
-      ["Obligacja"] = "papiery wartościowe z oprocentowaniem",
-      ["Akcja"] = "udział w kapitale spółki",
-      ["Bilans"] = "zestawienie aktywów i pasywów",
-      ["Budżet"] = "plan wydatków i dochodów",
-      ["Deficyt"] = "nadwyżka wydatków nad dochodami",
-      ["Eksternalność"] = "skutki działań jednostki dla innych",
-      ["Inflacja bazowa"] = "inflacja bez cen energii i żywności",
-      ["Percepcja"] = "odbiór bodźców zmysłowych",
-      ["Kognicja"] = "procesy myślowe i poznawcze",
-      ["Motywacja"] = "siła kierująca działaniem",
-      ["Emocje"] = "stany psychiczne wywołujące reakcje",
-      ["Stres"] = "reakcja organizmu na zagrożenie",
-      ["Neuroplastyczność"] = "zdolność mózgu do zmian",
-      ["Psychopatologia"] = "nauka o zaburzeniach psychicznych",
-      ["Psychoanaliza"] = "metoda badania nieświadomości",
-      ["Behaviouralizm"] = "podejście badające zachowanie",
-      ["Osobowość"] = "zespół cech psychicznych",
-      ["Awersja"] = "silna niechęć",
-      ["Prokrastynacja"] = "odkładanie zadań",
+      ["Amortyzacja"] = "stopniowe rozliczanie kosztów zakupu",
       ["Empatia"] = "zdolność wczuwania się w innych",
-      ["Dysocjacja"] = "oddzielenie świadomości od doświadczenia",
-      ["Traumatyzm"] = "efekt przeżycia szkodliwego psychicznie",
-      ["Mechanizm obronny"] = "strategia radzenia sobie z lękiem",
-      ["Konformizm"] = "podporządkowanie się grupie",
-      ["Fonetyka"] = "nauka o dźwiękach mowy",
-      ["Semantyka"] = "znaczenie słów i zdań",
-      ["Pragmatyka"] = "znaczenie w kontekście użycia",
-      ["Syntax"] = "zasady budowy zdań",
-      ["Dialekt"] = "lokalna odmiana języka",
-      ["Idiom"] = "wyrażenie o znaczeniu niedosłownym",
       ["Etymologia"] = "pochodzenie wyrazów",
-      ["Homonim"] = "wyraz o takim samym brzmieniu, innym znaczeniu",
-      ["Polisem"] = "wyraz o wielu znaczeniach",
-      ["Neologizm"] = "nowo powstałe słowo",
-      ["Leksykon"] = "zbiór słów danego języka",
-      ["Onomastyka"] = "nauka o nazwach własnych",
-      ["Morfem"] = "najmniejsza jednostka znacząca",
-      ["Fonem"] = "najmniejsza jednostka dźwiękowa",
-      ["Algorytm"] = "precyzyjna instrukcja rozwiązania problemu",
-      ["Baza danych"] = "zbiór uporządkowanych informacji",
-      ["Sztuczna inteligencja"] = "systemy imitujące ludzką inteligencję",
-      ["Sieć neuronowa"] = "model komputerowy inspirowany mózgiem",
-      ["Albowiem"] = "ponieważ, gdyż",
-      ["Aczkolwiek"] = "chociaż, mimo że",
-      ["Jeno"] = "tylko, jedynie",
-      ["Niegdyś"] = "kiedyś, dawniej",
-      ["Wszelako"] = "jednak, mimo to",
-      ["Uprzednio"] = "wcześniej, przedtem",
-      ["Przeto"] = "dlatego",
-      ["Potym"] = "potem, później",
-      ["Tudzież"] = "i, oraz",
       ["Bies"] = "demon w wierzeniach ludowych",
-      ["Szeliga"] = "herb szlachecki",
-      ["Hufiec"] = "jednostka wojskowa lub harcerska",
-      ["Żak"] = "uczeń lub student dawniej",
-      ["Knecht"] = "sługa, pachołek",
-      ["Świta"] = "towarzystwo króla lub pana",
-      ["Dziedzic"] = "właściciel ziemski",
-      ["Biesiada"] = "uczta, przyjęcie",
-      ["Karafka"] = "naczynie do napojów",
-      ["Koryto"] = "misa do karmienia zwierząt lub stół",
       ["Pyra"] = "ziemniak (regionalizm)",
-      ["Dziedziniec"] = "podwórze w zamku lub pałacu",
-      ["Izba"] = "pokój w domu",
-      ["Strych"] = "poddasze",
-      ["Chłodnia"] = "piwnica",
-      ["Sień"] = "przedsionek w domu",
-      ["Ganek"] = "weranda",
-      ["Gaj"] = "mały lasek",
-      ["Rżysko"] = "resztki po żniwach",
-      ["Jutrzenka"] = "świt",
-      ["Południe"] = "godzina dwunasta / połowa dnia",
-      ["Nocą"] = "w nocy",
-      ["Zimorodek"] = "dawniej nazwa pewnej pory roku",
-      ["Wieczerza"] = "późny posiłek wieczorny",
-      ["Rzewny"] = "płaczliwy, sentymentalny",
-      ["Trwożliwy"] = "bojaźliwy, lękliwy",
-      ["Łaskawy"] = "przychylny, uprzejmy",
-      ["Pobożny"] = "religijny, bogobojny",
-      ["Cnotliwy"] = "moralny, godny",
-      ["Zuchwały"] = "odważny, niekiedy bezczelny",
-      ["Skromny"] = "pokorny",
-      ["Rozrzutny"] = "hojny",
-      ["Próżny"] = "próżny, zadufany",
-      ["Miłosierny"] = "współczujący",
-      ["Brona"] = "narzędzie rolnicze do spulchniania ziemi",
-      ["Zaprzęg"] = "zespół zwierząt ciągnących wóz",
-      ["Szkuta"] = "dawny rodzaj łodzi",
-      ["Kozioł"] = "konstrukcja pomocnicza do transportu drewna",
-      ["Kładka"] = "drewniany mostek",
-      ["Bryczka"] = "lekki wóz konny",
-      ["Karoca"] = "luksusowy powóz",
-      ["Słowia"] = "dawny płaszcz",
-      ["Czamara"] = "rodzaj kurtki",
-      ["Żupan"] = "długa szata szlachecka",
-      ["Trzewik"] = "rodzaj obuwia",
-      ["Szarfa"] = "ozdobna taśma",
-      ["Diadem"] = "korona lub opaska na głowę",
-      ["Sztandar"] = "chorągiew",
-      ["Batalia"] = "bitwa",
-      ["Oręż"] = "broń",
-      ["Szaniec"] = "fortyfikacja ziemna",
-      ["Zwoje"] = "dawne dokumenty",
-      ["Papirus"] = "materiał do pisania",
-      ["Miniatura"] = "malunek ozdobny w księdze",
-      ["Kronika"] = "zapis wydarzeń historycznych",
-      ["Maskarada"] = "przedstawienie, bal kostiumowy",
-      ["Cnoty"] = "moralne zalety",
-      ["Przepastny"] = "ogromny, rozległy",
-      ["Szelest"] = "cichy dźwięk",
-      ["Łaskotać"] = "drażnić dotykiem",
-      ["Zbrukać"] = "pobrudzić",
-      ["Zasłyszeć"] = "usłyszeć przypadkiem",
-      ["Rozpaczliwy"] = "beznadziejny, desperacki",
-      ["Skrzętny"] = "oszczędny, dokładny",
-      ["Próżnować"] = "marnować czas",
-      ["Niezadługo"] = "wkrótce",
-      ["Zwątpić"] = "utracić wiarę",
       ["zwierzyna gruba"] = "dzik, jeleń, łoś",
-      ["Łowisko"] = "obszar, na którym prowadzi się gospodarkę łowiecką.",
+      ["Zwierzyna drobna"] = "zając, bażant, kuropatwa",
+      ["Zwierzyna płowa"] = "jelenie, sarny, daniele",
+      ["Zwierzyna drapieżna"] = "lis, wilk, kuna",
+      ["Zwierzyna ptasia"] = "kaczki, gęsi, bażanty, kuropatwy",
+      ["Obwód łowiecki"] = "jednostka organizacyjna łowiectwa, wydzielony teren przypisany kołu łowieckiemu.",
+      ["Kołek graniczny"] = "oznaczenie granicy obwodu łowieckiego.",
+      ["Droga zwierzyny"] = "regularnie uczęszczany szlak migracyjny zwierząt.",
+      ["Trop / podchód"] = "ślady pozostawione przez zwierzynę; podchód to także technika zbliżania się do niej.",
       ["Gody / rykowisko"] = "okres rozrodczy zwierzyny, np. rykowisko jeleni.",
       ["Dymorfizm płciowy"] = "różnice w wyglądzie samca i samicy danego gatunku.",
       ["Sezon lęgowy"] = "czas, w którym zwierzyna rozmnaża się i wychowuje młode.",
       ["Migracje zwierzyny"] = "przemieszczanie się zwierząt w poszukiwaniu pożywienia lub schronienia.",
-      ["Odsadzenie"] = "oddzielenie młodych od matki w hodowli.",
-      ["Trofeum"] = "część zwierzyny (np. poroże), zachowywana jako pamiątka lub nagroda.",
-      ["Dziczyzna"] = "mięso pozyskane ze zwierzyny łownej.",
-      ["Oprawianie zwierzyny"] = "przygotowanie tuszy do spożycia (patroszenie, porcjowanie).",
-      ["Skórowanie"] = "zdejmowanie skóry ze zwierzyny.",
-      ["Dzik"] = "Samiec: Odyniec, Samica: Locha, Młode: Warchlak",
-      ["Jeleń"] = "Samiec: Byk, Samica: Łania, Młode: Cielę",
-      ["Łoś"] = "Samiec: Byk, Samica: Łania, Młode: Cielę",
-      ["Sarna"] = "Samiec: Kozioł, Samica: Koza, Młode: Koźlę",
-      ["Chędożenie"] = "pierwotnie: czyszczenie, sprzątanie; później: zaspokojenie seksualne. (Słowo o bardzo zmiennym i specyficznym znaczeniu)",
-      ["Żalnik"] = "cmentarz, mogilnik",
-      ["Perstryngować"] = "przymawiać komu, docinać, przyganiać",
-      ["Pacwa"] = "licho, kaduk, zły duch; grzech, pokusa ",
-      ["Obrochmanić"] = "ugłaskać, ułagodzić, oswoić",
-      ["Obarchnieć (obarknieć)"] = "otumanieć, ogłupieć",
-      ["Dardański osioł"] = "określenie człowieka wyjątkowo głupiego, pozbawionego inteligencji",
-      ["Wartać się"] = "obracać się, kręcić się; błąkać się",
-      ["Duby smalone"] = "bzdury, głupstwa, brednie",
-      ["Safanduła"] = "niezdara, gamoń, fajtłapa, człowiek nierozgarnięty",
-      ["Huncwot"] = "łobuz, urwis, nicpoń",
+      ["Dzik"] = "samiec: Odyniec, samica: Locha, Młode: Warchlak",
+      ["Jeleń szlachetny"] = "samiec: Byk, samica: Łania, Młode: Cielę",
+      ["Jeleń sika"] = "samiec: Byk, samica: Łania, Młode: Cielę",
+      ["Łoś"] = "samiec: Byk, samica: Łania, Młode: Cielę",
+      ["Sarna"] = "samiec: Kozioł, samica: Koza, Młode: Koźlę",
+      ["Zając szarak"] = "samiec: Zając, samica: Zającica, Młode: Zające",
+      ["Bóbr"] = "samiec: Bóbr, samica: Bobrzyca, Młode: Młode bobry",
       ["Blaze a trail"] = "przetrzyj szlaki to metafora odnosząca się do pionierskiego działania, dokonywania czegoś po raz pierwszy, np. tworzenia nowej trasy, odkrywania czegoś lub inicjowania nowego trendu",
-      ["Aberracja "] = "To odchylenie od normy lub zasady",
-      ["To co naturalne, nie może być złe"] = "Chęć podążania człowieka za swoją naturą nie może być zła"
+      ["Aberracja "] = "to odchylenie od normy lub zasady",
+      ["To co naturalne, nie może być złe"] = "chęć podążania człowieka za swoją naturą nie może być zła",
+      ["Aproksymacja"] = "ujęcie czegoś w sposób niezupełnie ścisły; przybliżenie",
+      ["Konundrum"] = "łamigłówka, skomplikowana zagadka",
+      ["Inkorporować"] = "włączenie do jakiejś całości, zwykle przyłączenie jakiegoś terytorium do innego",
+      ["Lakoniczny"] = "zwięźle wyrażony",
+      ["Lapidarny"] = "krótki, zwięzły, ale jednocześnie odzwierciedlający kwintesencję czyichś myśli",
+      ["Ekscentryk"] = "osoba wyróżniająca się poglądami, dziwacznym zachowaniem lub stylem bycia",
+      ["Heurystyka"] = "metoda znajdowania rozwiązań bez gwarancji ich optymalności lub poprawności",
+      ["Obstrukcja"] = "bierny opór przy użyciu dozwolonych prawem metod",
+      ["Atawizm"] = "ponowne pojawienie się cech lub zachowań charakterystycznych dla odległych przodków",
+      ["Eskapizm"] = "ucieczka od problemów życia codziennego w świat iluzji i fantazji",
+      ["Kolektyw"] = "grupa osób związanych wspólnym działaniem, zespół",
+      ["Koincydencja"] = "jednoczesne wystąpienie czegoś, zbieżność zjawisk lub zdarzeń, ich współwystępowanie",
+      ["Konformizm"] = "postawa kogoś, kto bezkrytycznie godzi się z obowiązującymi normami, wartościami i poglądami, podporządkowując się im w oczekiwaniu korzyści lub z braku krytycyzmu.",
+      ["Infantylny"] = "coś, co jest prymitywne, banalne, pozbawione głębszych treści.",
+      ["Demagogia"] = "to głoszenie treści odwołujących się do emocji i oczekiwań ich odbiorców, mające na celu osiągnięcie własnych korzyści, uzyskanie powszechnego uznania i pozyskanie zwolenników."
     };
 
   }
