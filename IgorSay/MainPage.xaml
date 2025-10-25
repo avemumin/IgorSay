@@ -2,99 +2,62 @@
 <ContentPage
     x:Class="IgorSay.MainPage"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="Black">
 
-    <Grid RowDefinitions="2*, 1*">
+    <Grid
+        Padding="10"
+        ColumnDefinitions="3*,1*"
+        RowDefinitions="*">
 
-        <Image
-            x:Name="BorBackgroud"
-            Aspect="AspectFill"
-            Opacity="0.5"
-            Source="bor.png" />
-        <ScrollView Grid.Row="0">
-            <VerticalStackLayout
-                Padding="30"
-                Spacing="15"
-                VerticalOptions="Center">
+        <!--  Lewa część: 3/4 ekranu jako "ala monitor"  -->
+        <Border
+            Grid.Column="0"
+            BackgroundColor="#002200"
+            Stroke="LimeGreen"
+            StrokeThickness="4">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="10" />
+            </Border.StrokeShape>
+            <Border.Content>
+                <ContentView
+                    x:Name="MainContentView"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill" />
+            </Border.Content>
+        </Border>
 
-                <Grid
-                    x:Name="BoarContainer"
-                    HeightRequest="180"
-                    HorizontalOptions="Center"
-                    IsClippedToBounds="True"
-                    WidthRequest="300">
-
-                    <Grid
-                        x:Name="BoarMover"
-                        HorizontalOptions="Center"
-                        RowSpacing="5"
-                        TranslationX="300"
-                        VerticalOptions="Center"
-                        WidthRequest="280">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto" />
-                            <RowDefinition Height="Auto" />
-                        </Grid.RowDefinitions>
-
-                        <Label
-                            x:Name="TermLabel"
-                            Grid.Row="0"
-                            FontAttributes="Bold"
-                            FontSize="22"
-                            HorizontalOptions="Center"
-                            HorizontalTextAlignment="Center"
-                            Text="Witaj!"
-                            TextColor="Black"
-                            VerticalOptions="Center"
-                            VerticalTextAlignment="Center" />
-                        <Image
-                          
-                            Grid.Row="1"
-                            Aspect="AspectFit"
-                            HeightRequest="120"
-                            Source="wboar.png" />
-                    </Grid>
-
-                </Grid>
-
-
-                <Label
-                    x:Name="ExplanationLabel"
-                    Margin="0,25,0,0"
-                    FontAttributes="Bold"
-                    FontSize="20"
-                    HorizontalOptions="Center"
-                    HorizontalTextAlignment="Center"
-                    Text="Kliknij przycisk, aby wylosować hasło."
-                    TextColor="Black" />
-
-            </VerticalStackLayout>
-        </ScrollView>
-
-        <Grid
-            Grid.Row="1"
-            BackgroundColor="DarkGreen">
-
+        <!--  Prawa część: 1/4 ekranu jako panel z przyciskami  -->
+        <VerticalStackLayout
+            Grid.Column="1"
+            Padding="10"
+            Spacing="20"
+            VerticalOptions="Center">
             <Button
-                x:Name="DrawButton"
-                BackgroundColor="Green"
-                BorderColor="Black"
-                BorderWidth="5"
-                Clicked="OnDrawClicked"
-                ContentLayout="Top, 10"
-                CornerRadius="10"
-                FontFamily="Consolas"
-                FontSize="Header"
-                HorizontalOptions="Center"
-                ImageSource="shotgun.png"
-                Text="Szczelaj!"
-                TextColor="Yellow"
-                VerticalOptions="Center"
-                WidthRequest="200" />
-
-
-        </Grid>
+                BackgroundColor="LimeGreen"
+                Clicked="OnPlayClicked"
+                CornerRadius="5"
+                FontFamily="Courier"
+                FontSize="18"
+                Text="Graj"
+                TextColor="Black" />
+            <Button
+                BackgroundColor="LimeGreen"
+                Clicked="OnAddClicked"
+                CornerRadius="5"
+                FontFamily="Courier"
+                FontSize="18"
+                Text="Dodaj"
+                TextColor="Black" />
+            <Button
+                BackgroundColor="LimeGreen"
+                Clicked="OnSettingsClicked"
+                CornerRadius="5"
+                FontFamily="Courier"
+                FontSize="18"
+                Text="Ustawienia"
+                TextColor="Black" />
+        </VerticalStackLayout>
 
     </Grid>
-
 </ContentPage>

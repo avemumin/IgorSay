@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="IgorSay.GameView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <Grid RowDefinitions="2*, 1*">
+        <!--  Tło z obrazkiem  -->
+        <Image
+            x:Name="BorBackgroud"
+            Aspect="AspectFill"
+            Opacity="0.5"
+            Source="bor2.png" />
+
+        <!--  Górna część: ScrollView z animowanym kontenerem i etykietami  -->
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout
+                Padding="30"
+                Spacing="15"
+                VerticalOptions="Center">
+                <Grid
+                    x:Name="BoarContainer"
+                    HeightRequest="180"
+                    HorizontalOptions="Center"
+                    IsClippedToBounds="True"
+                    WidthRequest="300">
+                    <Grid
+                        x:Name="BoarMover"
+                        HorizontalOptions="Center"
+                        RowSpacing="5"
+                        TranslationX="300"
+                        VerticalOptions="Center"
+                        WidthRequest="280">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Label
+                            x:Name="TermLabel"
+                            Grid.Row="0"
+                            Margin="0,25,0,0"
+                            Background="White"
+                            FontAttributes="Bold"
+                            FontSize="22"
+                            HorizontalOptions="Center"
+                            HorizontalTextAlignment="Center"
+                            Opacity="0.6"
+                            Text="{Binding TermText}"
+                            TextColor="Black"
+                            VerticalOptions="Center"
+                            VerticalTextAlignment="Center" />
+                        <Image
+                            Grid.Row="1"
+                            Aspect="AspectFit"
+                            HeightRequest="120"
+                            Source="boar3.png" />
+                    </Grid>
+                </Grid>
+                <Label
+                    x:Name="ExplanationLabel"
+                    Margin="0,25,0,0"
+                    BackgroundColor="White"
+                    FontAttributes="Bold"
+                    FontFamily="Empty"
+                    FontSize="20"
+                    HorizontalOptions="Center"
+                    HorizontalTextAlignment="Center"
+                    Opacity="0.6"
+                    Text="{Binding ExplanationText}"
+                    TextColor="Black" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!--  Dolna część: Przycisk  -->
+        <Grid
+            Grid.Row="1"
+            BackgroundColor="DarkGreen">
+            <Button
+                x:Name="DrawButton"
+                BackgroundColor="Green"
+                BorderColor="Black"
+                BorderWidth="5"
+                Command="{Binding DrawCommand}"
+                ContentLayout="Top, 10"
+                CornerRadius="10"
+                FontFamily="Consolas"
+                FontSize="Header"
+                HorizontalOptions="Center"
+                ImageSource="shotgun2.png"
+                IsEnabled="{Binding DrawButtonEnabled}"
+                Text="{Binding DrawButtonText}"
+                TextColor="Yellow"
+                VerticalOptions="Center"
+                WidthRequest="200" />
+        </Grid>
+    </Grid>
+</ContentView>

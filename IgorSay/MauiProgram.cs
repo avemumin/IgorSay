@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using IgorSay.Services;
+using Microsoft.Extensions.Logging;
 using Plugin.Maui.Audio;
 
 namespace IgorSay
@@ -16,7 +17,8 @@ namespace IgorSay
             fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
           });
-
+      builder.Services.AddSingleton<IAudioManager, AudioManager>();
+      builder.Services.AddSingleton<ITermService, TermService>();
 #if DEBUG
       builder.Logging.AddDebug();
 #endif

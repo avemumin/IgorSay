@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="IgorSay.SettingsView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+    <VerticalStackLayout
+        Padding="20"
+        Spacing="20"
+        VerticalOptions="Center">
+        <Label
+            FontFamily="Courier"
+            FontSize="20"
+            HorizontalTextAlignment="Center"
+            Text="Ustawienia"
+            TextColor="LimeGreen" />
+        <Entry
+            x:Name="AddressEntry"
+            FontFamily="Courier"
+            FontSize="16"
+            Placeholder="Wprowadź zewnętrzny adres"
+            PlaceholderColor="DarkGreen"
+            Text="{Binding ExternalAddress}"
+            TextColor="LimeGreen" />
+        <Button
+            BackgroundColor="LimeGreen"
+            Clicked="OnSaveSettingsClicked"
+            Command="{Binding SaveCommand}"
+            CornerRadius="5"
+            FontFamily="Courier"
+            FontSize="16"
+            Text="Zapisz"
+            TextColor="Black" />
+    </VerticalStackLayout>
+</ContentView>
