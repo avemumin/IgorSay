@@ -3,7 +3,8 @@ namespace IgorSay;
 public partial class AddPasswordView : ContentView
 {
   private readonly Dictionary<string, string> _passwords = new();
-  public AddPasswordView()
+  
+  public AddPasswordView( )
   {
     InitializeComponent();
   }

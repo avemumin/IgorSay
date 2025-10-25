@@ -14,13 +14,13 @@ public partial class MainPage : ContentPage
   {
     InitializeComponent();
     _gameView = new GameView(audioManager, termService);
-    _addPasswordView = new AddPasswordView { BindingContext = new AddPasswordViewModel(termService) };
+    _addPasswordView = new AddPasswordView() { BindingContext = new AddPasswordViewModel(termService, SwitchToGameView) };
     _settingsView = new SettingsView { BindingContext = new SettingsViewModel() };
 
     MainContentView.Content = _gameView;
   }
 
-  private void OnPlayClicked(object sender, EventArgs e)
+  public void SwitchToGameView()
   {
     MainContentView.Content = _gameView;
   }
@@ -28,11 +28,6 @@ public partial class MainPage : ContentPage
   private void OnAddClicked(object sender, EventArgs e)
   {
     MainContentView.Content = _addPasswordView;
-  }
-
-  private void OnSettingsClicked(object sender, EventArgs e)
-  {
-    MainContentView.Content = _settingsView;
   }
 }
 

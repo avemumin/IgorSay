@@ -58,7 +58,8 @@ public class GameViewModel : BaseViewModel
     DrawCommand = new Command(OnDrawClicked, () => DrawButtonEnabled);
 
     // Inicjalizuj słownik asynchronicznie
-    InitializeTermsAsync().GetAwaiter().GetResult();
+    //  InitializeTermsAsync().GetAwaiter().GetResult();
+    MainThread.BeginInvokeOnMainThread(async () => await InitializeTermsAsync());
   }
 
   private async Task InitializeTermsAsync()

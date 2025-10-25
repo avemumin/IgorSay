@@ -5,6 +5,6 @@ namespace IgorSay.Services;
 public interface ITermService
 {
   Task<Dictionary<string, string>> GetTermsAsync();
-  Task GetByNameAsync(Term term);
+  Task<Term?> GetByNameAsync(string key);
   Task AddTermAsync(Term term);
 }

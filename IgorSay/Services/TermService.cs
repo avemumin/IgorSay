@@ -1,38 +1,57 @@
 ﻿using IgorSay.Models;
-
 namespace IgorSay.Services;
 
 public class TermService : ITermService
 {
   private Dictionary<string, string> dictionary = new();
-  public TermService()
+  private readonly Supabase.Client _client;
+  public TermService(Supabase.Client client)
   {
-    if (dictionary is null || dictionary.Count == 0)
-      GenerateDictionary();
+    _client = client;
+    Task.Run(async () => await _client.InitializeAsync());
   }
   public async Task<Dictionary<string, string>> GetTermsAsync()
   {
-    return await Task.FromResult(dictionary);
+    var result = await _client.From<Term>().Get();
+    return result.Models.ToDictionary(t => t.Key, t => t.Value);
   }
 
-  public async Task GetByNameAsync(Term term)
+  public async Task<Term?> GetByNameAsync(string key)
   {
-    // Implementacja w przyszłości dla bazy danych
-    throw new NotImplementedException();
+    try
+    {
+      var result = await _client
+          .From<Term>()
+          .Filter("key", Postgrest.Constants.Operator.Equals, key)
+          .Get();
+
+      return result.Models.FirstOrDefault();
+    }
+    catch (Exception ex)
+    {
+      System.Diagnostics.Debug.WriteLine($"[GetByNameAsync] Błąd: {ex.Message}");
+      throw;
+    }
   }
 
   public async Task AddTermAsync(Term term)
   {
-    if (term != null && !string.IsNullOrWhiteSpace(term.key) && !string.IsNullOrWhiteSpace(term.value))
+    try
     {
-      dictionary[term.key] = term.value;
-      await Task.CompletedTask; // Symulacja asynchroniczności
+      var existing = await GetByNameAsync(term.Key);
+      System.Diagnostics.Debug.WriteLine($"[AddTermAsync] Istniejący: {(existing != null ? "tak" : "nie")}");
+      if (existing != null)
+        throw new InvalidOperationException("Termin już istnieje.");
+
+      await _client.From<Term>().Insert(term);
     }
-    else
+    catch (Exception ex)
     {
-      throw new ArgumentException("Termin lub wartość nie może być pusta.");
+      System.Diagnostics.Debug.WriteLine($"[AddTermAsync] Błąd: {ex.Message}");
+      throw; 
     }
   }
+
 
   private Dictionary<string, string> GenerateDictionary()
   {
