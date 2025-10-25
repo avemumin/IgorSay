@@ -66,7 +66,15 @@ public class GameViewModel : BaseViewModel
   {
     try
     {
-      _termsDictionary = await _termService.GetTermsAsync();
+      var cached = _termService.GetCachedTerms();
+      if (cached.Count > 0)
+      {
+        _termsDictionary = cached;
+      }
+      else
+      {
+        _termsDictionary = await _termService.GetTermsAsync();
+      }
     }
     catch (Exception ex)
     {

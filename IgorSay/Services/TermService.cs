@@ -3,7 +3,7 @@ namespace IgorSay.Services;
 
 public class TermService : ITermService
 {
-  private Dictionary<string, string> dictionary = new();
+  private Dictionary<string, string> _termsCache = new();
   private readonly Supabase.Client _client;
   public TermService(Supabase.Client client)
   {
@@ -13,7 +13,9 @@ public class TermService : ITermService
   public async Task<Dictionary<string, string>> GetTermsAsync()
   {
     var result = await _client.From<Term>().Get();
-    return result.Models.ToDictionary(t => t.Key, t => t.Value);
+    _termsCache = result.Models.ToDictionary(t => t.Key, t => t.Value);
+    return _termsCache; 
+      //result.Models.ToDictionary(t => t.Key, t => t.Value);
   }
 
   public async Task<Term?> GetByNameAsync(string key)
@@ -44,6 +46,7 @@ public class TermService : ITermService
         throw new InvalidOperationException("Termin już istnieje.");
 
       await _client.From<Term>().Insert(term);
+      _termsCache[term.Key] = term.Value;
     }
     catch (Exception ex)
     {
@@ -51,18 +54,22 @@ public class TermService : ITermService
       throw; 
     }
   }
-
-
-  private Dictionary<string, string> GenerateDictionary()
+  public Dictionary<string, string> GetCachedTerms() => _termsCache;
+  public async Task ReloadTermsAsync()
   {
-    dictionary = new Dictionary<string, string>
-    {
-      ["Afektywność"] = "zdolność do doświadczania emocji",
-      ["Anhedonia"] = "brak zdolności do odczuwania przyjemności",
-      ["Apatia psychiczna"] = "obniżona motywacja i inicjatywa w działaniu",
-      ["Autyzm spektrum"] = "zaburzenia rozwoju wpływające na komunikację: interakcje społeczne i zainteresowania",
-      ["Awersja warunkowa"] = "wyuczona reakcja unikania w odpowiedzi na bodziec negatywny"
-    };
-    return dictionary;
+    var result = await _client.From<Term>().Get();
+    _termsCache = result.Models.ToDictionary(t => t.Key, t => t.Value);
   }
+  //private Dictionary<string, string> GenerateDictionary()
+  //{
+  //  dictionary = new Dictionary<string, string>
+  //  {
+  //    ["Afektywność"] = "zdolność do doświadczania emocji",
+  //    ["Anhedonia"] = "brak zdolności do odczuwania przyjemności",
+  //    ["Apatia psychiczna"] = "obniżona motywacja i inicjatywa w działaniu",
+  //    ["Autyzm spektrum"] = "zaburzenia rozwoju wpływające na komunikację: interakcje społeczne i zainteresowania",
+  //    ["Awersja warunkowa"] = "wyuczona reakcja unikania w odpowiedzi na bodziec negatywny"
+  //  };
+  //  return dictionary;
+  //}
 }

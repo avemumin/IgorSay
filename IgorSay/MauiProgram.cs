@@ -10,7 +10,7 @@ namespace IgorSay
   {
     public static MauiApp CreateMauiApp()
     {
-      
+
       var builder = MauiApp.CreateBuilder();
       builder
           .UseMauiApp<App>()
@@ -20,7 +20,7 @@ namespace IgorSay
             fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
             fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
           });
-  //    var con = builder.Services.AddSingleton<AppSettings>();
+      //    var con = builder.Services.AddSingleton<AppSettings>();
       var settings = new AppSettings();
       builder.Services.AddSingleton(settings);
       builder.Services.AddSingleton<IAudioManager, AudioManager>();
@@ -41,7 +41,7 @@ namespace IgorSay
 #if DEBUG
       builder.Logging.AddDebug();
 #endif
-   
+
 
       return builder.Build();
     }
