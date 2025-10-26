@@ -91,6 +91,7 @@ public class GameViewModel : BaseViewModel
   {
     try
     {
+      _view.SetBoarImage("boar3.png");
       // Odtwarzanie dźwięku w osobnym tasku
       string soundOfKnur = _isAnimating ? "shootgun.wav" : "boar.wav";
       _ = Task.Run(async () =>
@@ -182,6 +183,7 @@ public class GameViewModel : BaseViewModel
     }
     catch (OperationCanceledException)
     {
+      _view.SetBoarImage("trup.png");
       DrawButtonEnabled = false;
 
       List<string> keys = new List<string>(_termsDictionary!.Keys);

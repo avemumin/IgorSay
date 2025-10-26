@@ -35,4 +35,9 @@ public partial class GameView : ContentView
     BoarMover.TranslationX = 300;
     await BoarMover.TranslateTo(0, 0, 400, Easing.BounceOut);
   }
+
+  public void SetBoarImage(string imageName)
+  {
+    BoarImage.Source = imageName;
+  }
 }
