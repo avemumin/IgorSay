@@ -61,7 +61,10 @@ public class GameViewModel : BaseViewModel
     //  InitializeTermsAsync().GetAwaiter().GetResult();
     MainThread.BeginInvokeOnMainThread(async () => await InitializeTermsAsync());
   }
-
+  public void ReloadTerms()
+  {
+    _termsDictionary = _termService.GetCachedTerms();
+  }
   private async Task InitializeTermsAsync()
   {
     try

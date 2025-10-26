@@ -14,13 +14,21 @@ public class AddPasswordViewModel : BaseViewModel
   public string Key
   {
     get => _key;
-    set => SetProperty(ref _key, value);
+    set
+    {
+      if (SetProperty(ref _key, value))
+        ((Command)SaveCommand).ChangeCanExecute();
+    }
   }
 
   public string Value
   {
     get => _value;
-    set => SetProperty(ref _value, value);
+    set
+    {
+      if (SetProperty(ref _value, value))
+        ((Command)SaveCommand).ChangeCanExecute();
+    }
   }
 
   public ICommand SaveCommand { get; }

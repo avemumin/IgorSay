@@ -15,14 +15,17 @@ public partial class MainPage : ContentPage
     InitializeComponent();
     _gameView = new GameView(audioManager, termService);
     _addPasswordView = new AddPasswordView() { BindingContext = new AddPasswordViewModel(termService, SwitchToGameView) };
-    _settingsView = new SettingsView { BindingContext = new SettingsViewModel() };
-
+    
     MainContentView.Content = _gameView;
   }
 
   public void SwitchToGameView()
   {
     MainContentView.Content = _gameView;
+    if (_gameView.BindingContext is GameViewModel gameVm)
+    {
+      gameVm.ReloadTerms();
+    }
   }
 
   private void OnAddClicked(object sender, EventArgs e)
