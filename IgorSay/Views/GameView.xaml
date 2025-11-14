@@ -5,14 +5,14 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <Grid RowDefinitions="2*, 1*">
-        <!-- Tło z obrazkiem -->
+        <!--  Tło z obrazkiem  -->
         <Image
             x:Name="BorBackgroud"
             Aspect="AspectFill"
             Opacity="0.5"
             Source="bor2.png" />
 
-        <!-- Górna część: ScrollView z animowanym kontenerem i etykietami -->
+        <!--  Górna część: ScrollView z animowanym kontenerem i etykietami  -->
         <ScrollView Grid.Row="0">
             <VerticalStackLayout
                 Padding="30"
@@ -78,7 +78,7 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <!-- Dolna część: Przycisk -->
+        <!--  Dolna część: Przycisk  -->
         <Grid
             Grid.Row="1"
             BackgroundColor="DarkGreen">

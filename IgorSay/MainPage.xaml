@@ -7,11 +7,24 @@
 
     <Grid
         Padding="10"
-        RowDefinitions="4*,1*">
+        RowDefinitions="Auto,4*,1*">
 
-        <!--  Lewa część: 3/4 ekranu jako "ala monitor"  -->
-        <Border
+        <!--  Nagłówek z sekretnym tapnięciem  -->
+        <Label
             Grid.Row="0"
+            FontSize="28"
+            HorizontalOptions="Center"
+            Text="Igor Mówi"
+            TextColor="LimeGreen"
+            VerticalOptions="Center">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnSecretTapped" />
+            </Label.GestureRecognizers>
+        </Label>
+
+        <!--  Lewa część: monitor  -->
+        <Border
+            Grid.Row="1"
             BackgroundColor="#002200"
             Stroke="LimeGreen"
             StrokeThickness="4">
@@ -26,9 +39,9 @@
             </Border.Content>
         </Border>
 
-        <!--  Prawa część: 1/4 ekranu jako panel z przyciskami  -->
+        <!--  Prawa część: panel z przyciskami  -->
         <VerticalStackLayout
-            Grid.Row="1"
+            Grid.Row="2"
             Padding="10"
             Spacing="20"
             VerticalOptions="Center">
@@ -41,6 +54,37 @@
                 FontSize="18"
                 Text="Dodaj"
                 TextColor="Black" />
+
+            <!--  Panel logowania moderatora (ukryty do czasu 7 tapnięć)  -->
+            <HorizontalStackLayout
+                x:Name="ModeratorLoginPanel"
+                HorizontalOptions="Center"
+                IsVisible="False"
+                Spacing="10">
+
+                <Entry
+                    x:Name="ModeratorEntry"
+                    Placeholder="Login"
+                    PlaceholderColor="Gray"
+                    TextColor="White"
+                    WidthRequest="120" />
+
+                <Entry
+                    x:Name="PasswordEntry"
+                    IsPassword="true"
+                    Placeholder="Hasło"
+                    PlaceholderColor="Gray"
+                    TextColor="White"
+                    WidthRequest="120" />
+
+                <Button
+                    BackgroundColor="DarkRed"
+                    Clicked="OnPasswordSubmit"
+                    Text="OK"
+                    TextColor="White"
+                    WidthRequest="80" />
+            </HorizontalStackLayout>
+
         </VerticalStackLayout>
 
     </Grid>

@@ -1,5 +1,7 @@
 ﻿using IgorSay.Models;
 using IgorSay.Services;
+using IgorSay.ViewModels;
+using IgorSay.Views;
 using Microsoft.Extensions.Logging;
 using Plugin.Maui.Audio;
 using Supabase;
@@ -25,7 +27,9 @@ namespace IgorSay
       builder.Services.AddSingleton(settings);
       builder.Services.AddSingleton<IAudioManager, AudioManager>();
       builder.Services.AddSingleton<ITermService, TermService>();
-
+      builder.Services.AddScoped<IModeratorService, ModeratorService>();
+      builder.Services.AddTransient<ModerationViewModel>();
+      builder.Services.AddTransient<ModerationPage>();
       builder.Services.AddScoped<Supabase.Client>(provider =>
       {
         var config = provider.GetRequiredService<AppSettings>();

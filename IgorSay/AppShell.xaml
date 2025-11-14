@@ -7,7 +7,6 @@
     Title="IgorSay">
 
     <ShellContent
-        Title="Igor Mówi:"
         ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
 

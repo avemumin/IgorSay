@@ -12,10 +12,12 @@ public class TermService : ITermService
   }
   public async Task<Dictionary<string, string>> GetTermsAsync()
   {
-    var result = await _client.From<Term>().Get();
+    var result = await _client.From<Term>()
+      .Where(t => t.Approved == true)
+      .Get();
     _termsCache = result.Models.ToDictionary(t => t.Key, t => t.Value);
-    return _termsCache; 
-      //result.Models.ToDictionary(t => t.Key, t => t.Value);
+    return _termsCache;
+    //result.Models.ToDictionary(t => t.Key, t => t.Value);
   }
 
   public async Task<Term?> GetByNameAsync(string key)
@@ -51,7 +53,7 @@ public class TermService : ITermService
     catch (Exception ex)
     {
       System.Diagnostics.Debug.WriteLine($"[AddTermAsync] Błąd: {ex.Message}");
-      throw; 
+      throw;
     }
   }
   public Dictionary<string, string> GetCachedTerms() => _termsCache;
@@ -60,16 +62,5 @@ public class TermService : ITermService
     var result = await _client.From<Term>().Get();
     _termsCache = result.Models.ToDictionary(t => t.Key, t => t.Value);
   }
-  //private Dictionary<string, string> GenerateDictionary()
-  //{
-  //  dictionary = new Dictionary<string, string>
-  //  {
-  //    ["Afektywność"] = "zdolność do doświadczania emocji",
-  //    ["Anhedonia"] = "brak zdolności do odczuwania przyjemności",
-  //    ["Apatia psychiczna"] = "obniżona motywacja i inicjatywa w działaniu",
-  //    ["Autyzm spektrum"] = "zaburzenia rozwoju wpływające na komunikację: interakcje społeczne i zainteresowania",
-  //    ["Awersja warunkowa"] = "wyuczona reakcja unikania w odpowiedzi na bodziec negatywny"
-  //  };
-  //  return dictionary;
-  //}
+
 }

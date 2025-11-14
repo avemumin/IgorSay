@@ -1,10 +1,11 @@
 ﻿namespace IgorSay
 {
-    public partial class AppShell : Shell
+  public partial class AppShell : Shell
+  {
+    public AppShell()
     {
-        public AppShell()
-        {
-            InitializeComponent();
-        }
+      InitializeComponent();
+      Routing.RegisterRoute("ModerationPage", typeof(IgorSay.Views.ModerationPage));
     }
+  }
 }

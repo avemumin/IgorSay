@@ -19,6 +19,9 @@ public class Term : BaseModel
   [Column("created_at")]
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+  [Column("approved")]
+  public bool Approved { get; set; } = false;
+
   public Term() { }
 
   public Term(string key, string value)
