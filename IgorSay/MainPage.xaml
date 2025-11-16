@@ -78,11 +78,18 @@
                     WidthRequest="120" />
 
                 <Button
-                    BackgroundColor="DarkRed"
+                    BackgroundColor="DarkGreen"
                     Clicked="OnPasswordSubmit"
-                    Text="OK"
+                    Text="V"
                     TextColor="White"
-                    WidthRequest="80" />
+                    WidthRequest="40" />
+
+                <Button
+                    BackgroundColor="DarkRed"
+                    Clicked="OnCancel"
+                    Text="X"
+                    TextColor="LightGreen"
+                    WidthRequest="40" />
             </HorizontalStackLayout>
 
         </VerticalStackLayout>

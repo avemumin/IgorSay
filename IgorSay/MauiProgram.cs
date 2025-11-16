@@ -42,6 +42,8 @@ namespace IgorSay
             AutoConnectRealtime = true
           });
       });
+
+
 #if DEBUG
       builder.Logging.AddDebug();
 #endif

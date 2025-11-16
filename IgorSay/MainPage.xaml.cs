@@ -8,7 +8,7 @@ namespace IgorSay;
 
 public partial class MainPage : ContentPage
 {
- 
+
   private int _tapCount = 0;
   private readonly ContentView _gameView;
   private readonly ContentView _addPasswordView;
@@ -73,6 +73,35 @@ public partial class MainPage : ContentPage
     }
 
     PasswordEntry.Text = string.Empty;
+  }
+  private async void OnCancel(object sender, EventArgs e)
+  {
+    await Task.Delay(50);
+    ModeratorLoginPanel.IsVisible = false;
+  }
+
+  protected override bool OnBackButtonPressed()
+  {
+    MainThread.BeginInvokeOnMainThread(async () =>
+    {
+      // pokaż komunikat
+      await DisplayAlert("Wyjście", "W tej aplikacji nie ucierpiał żaden dzik.", "OK");
+
+
+
+
+#if ANDROID
+        Android.OS.Process.KillProcess(Android.OS.Process.MyPid());
+#elif WINDOWS || MACCATALYST
+        Application.Current.Quit();
+#elif IOS
+      // iOS nie pozwala na zamykanie aplikacji programowo
+      await DisplayAlert("Info", "Na iOS aplikacji nie można zamknąć automatycznie.", "OK");
+#endif
+    });
+
+    // blokujemy domyślne działanie przycisku Back
+    return true;
   }
 
 }

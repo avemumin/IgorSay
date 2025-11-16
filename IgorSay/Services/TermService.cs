@@ -17,7 +17,6 @@ public class TermService : ITermService
       .Get();
     _termsCache = result.Models.ToDictionary(t => t.Key, t => t.Value);
     return _termsCache;
-    //result.Models.ToDictionary(t => t.Key, t => t.Value);
   }
 
   public async Task<Term?> GetByNameAsync(string key)
